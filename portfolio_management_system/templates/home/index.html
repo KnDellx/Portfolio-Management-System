@@ -75,18 +75,12 @@
 												<li class="nav-item">
 													<a class="nav-link js-scroll-trigger" href="#services">Services</a>
 												</li>
-												<li class="nav-item">
-													<a class="nav-link js-scroll-trigger" href="#apps-review">Apps Review</a>
-												</li>
+										
 												<li class="nav-item">
 													<a class="nav-link js-scroll-trigger" href="#progress">Work Progress</a>
 												</li>
-												<li class="nav-item">
-													<a class="nav-link js-scroll-trigger" href="#team">Team</a>
-												</li>
-												<li class="nav-item">
-													<a class="nav-link js-scroll-trigger" href="#contact">Contact us</a>
-												</li>
+									
+											
 												{% if user.is_authenticated %}
 												<li class="nav-item">
 													<a class="nav-link js-scroll-trigger" href="{% url 'dashboard' %}">Dashboard</a>
@@ -274,35 +268,7 @@
 			</div> <!-- /.our-feature-two -->
 
 
-			<!--
-			=====================================================
-				Apps Overview
-			=====================================================
-			-->
-			<div class="apps-overview color-one" id="apps-review">
-				<div class="overlay-bg" style="background-image:url({% static 'home/images/home/bg2.png' %});">
-					<div class="container">
-						<div class="inner-wrapper">
-							<img src="{% static 'home/images/home/s8.png' %}" alt="" class="s8-mockup" data-aos="fade-down" data-aos-duration="2500">
-							<img src="{% static 'home/images/home/x.png' %}" alt="" class="x-mockup" data-aos="fade-up" data-aos-duration="2500">
-							<div class="row">
-								<div class="col-lg-5 offset-lg-7">
-									<div class="text">
-										<h3>don’t miss our apps</h3>
-										<h2>Mobile Application for Faster Access.</h2>
-										<h6>Now you can control dashboard from the mobile!</h6>
-										<p>Our apps will be available soon at your fingertips on your mobile. Our Development Team is committed to build apps for you and it will be available soon ...</p>
-										<ul class="button-group">
-											<li><a href="#"><i class="flaticon-apple"></i> Apple Store</a></li>
-											<li><a href="#"><img src="{% static 'home/images/icon/playstore.png' %}" alt=""> Google Play</a></li>
-										</ul>
-									</div> <!-- /.text -->
-								</div>
-							</div>
-						</div> <!-- /.inner-wrapper -->
-					</div>
-				</div> <!-- /.overlay-bg -->
-			</div> <!-- /.apps-overview -->
+			
 
 
 			<!--
@@ -405,123 +371,9 @@
 			</div> <!-- /.our-work-progress -->
 
 
-			<!--
-			=====================================================
-				Team Section
-			=====================================================
-			-->
-			<div class="our-team" id="team">
-				<div class="container">
-					<div class="theme-title text-center">
-						<h2>Our Development <span>Team</span></h2>
-					</div>
-					<div class="row text-center">
-						<div class="col">
-							<div class="single-block clearfix">
-								<div class="img-block"><img src="{% static 'home/images/home/1.jpg' %}" alt=""></div>
-								<div class="text">
-									<h3 class="name">Bhushan Pagare</h3>
-									<a href="https://linkedin.com/in/bpagare6"><i class="fa fa-linkedin-square" style="font-size:24px"></i></a>
-									<a href="https://github.com/bpagare6"><i class="fa fa-github" style="font-size:24px;color:black;"></i></a>
-									<a href="https://bpagare6.github.io"><i class="fa fa-globe" style="font-size:24px;color:black;"></i></a>
-								</div> <!-- /.text -->
-							</div> <!-- /.single-block -->
-						</div>
-						<div class="col">
-							<div class="single-block clearfix">
-								<div class="img-block"><img src="{% static 'home/images/home/1.jpg' %}" alt=""></div>
-								<div class="text">
-									<h3 class="name">Purvesh Jain</h3>
-									<a href="https://linkedin.com/in/purvesh-jain-035727155/"><i class="fa fa-linkedin-square" style="font-size:24px"></i></a>
-									<a href="https://github.com/purvesh314"><i class="fa fa-github" style="font-size:24px;color:black;"></i></a>
-								</div> <!-- /.text -->
-							</div> <!-- /.single-block -->
-						</div>
-						<div class="col">
-							<div class="single-block clearfix">
-								<div class="img-block"><img src="{% static 'home/images/home/1.jpg' %}" alt=""></div>
-								<div class="text">
-									<h3 class="name">Manav Peshwani</h3>
-									<a href="https://linkedin.com/in/manavpeshwani"><i class="fa fa-linkedin-square" style="font-size:24px"></i></a>
-									<a href="https://github.com/manavpeshwani"><i class="fa fa-github" style="font-size:24px;color:black;"></i></a>
-								</div> <!-- /.text -->
-							</div> <!-- /.single-block -->
-						</div>
-						<div class="col">
-							<div class="single-block clearfix">
-								<div class="img-block"><img src="{% static 'home/images/home/1.jpg' %}" alt=""></div>
-								<div class="text">
-									<h3 class="name">Nipun Khivansara</h3>
-									<a href="https://linkedin.com/in/nipun-khivansara-152bb8199/"><i class="fa fa-linkedin-square" style="font-size:24px"></i></a>
-									<a href="https://github.com/Nipunkhivansara"><i class="fa fa-github" style="font-size:24px;color:black;"></i></a>
-								</div> <!-- /.text -->
-							</div> <!-- /.single-block -->
-						</div>
-					</div>
-				</div> <!-- /.container -->
-			</div> <!-- /.testimonial-section -->
+			
 
 
-			<!-- 
-			=============================================
-				Contact Us One
-			============================================== 
-			-->
-			<div class="contact-us-one" id="contact">
-				<div class="overlay">
-					<div class="container">
-						<div class="theme-title text-center">
-							<h2>Get In Touch</h2>
-							<p>Send your requests/queries and we will get back to you with solutions soon</p>
-						</div>
-
-						<form action="#" class="form-validation" autocomplete="off">
-							<div class="row">
-								<div class="col-md-6">
-									<label>First Name*</label>
-									<input type="text" placeholder="First Name" name="firstName">
-								</div>
-								<div class="col-md-6">
-									<label>Last Name*</label>
-									<input type="text" placeholder="Last Name" name="lastName">
-								</div>
-								<div class="col-md-6">
-									<label>Email*</label>
-									<input type="email" placeholder="Email Address" name="email">
-								</div>
-								<div class="col-md-6">
-									<label>Phone</label>
-									<input type="text" placeholder="Phone Number" name="phone">
-								</div>
-								<div class="col-12">
-									<label>I would like to discuss*</label>
-									<input type="text" name="message">
-								</div>
-							</div>
-							<button>Send Message</button>
-						</form>
-
-						<!--Contact Form Validation Markup -->
-						<!-- Contact alert -->
-						<div class="alert-wrapper" id="alert-success">
-							<div id="success">
-								<button class="closeAlert"><i class="fa fa-times" aria-hidden="true"></i></button>
-									<div class="wrapper">
-										<p>Your message was sent successfully.</p>
-									</div>
-								</div>
-							</div> <!-- End of .alert_wrapper -->
-							<div class="alert-wrapper" id="alert-error">
-									<div id="error">
-											<button class="closeAlert"><i class="fa fa-times" aria-hidden="true"></i></button>
-											<div class="wrapper">
-													<p>Sorry!Something Went Wrong.</p>
-											</div>
-									</div>
-							</div> <!-- End of .alert_wrapper -->
-					</div>
-				</div> <!-- /.overlay -->
-			</div> <!-- /.contact-us-one -->
 
 
 			<!--
@@ -547,63 +399,7 @@
 				Footer 
 			=====================================================
 			-->
-			<footer class="theme-footer">
-				<div class="container">
-					<div class="inner-wrapper">
-						<div class="top-footer-data-wrapper">
-							<div class="row">
-								<div class="col-lg-4 col-sm-6 footer-logo">
-									<div class="logo">
-										<a href="{% url 'home' %}">
-											{% comment %} <img src="{% static 'home/images/logo/logo.png' %}" alt="Logo"> {% endcomment %}
-											<h3>Logo Placeholder</h3>
-										</a>
-									</div>
-									<a href="mailto:contact@pms.com" class="email">contact@pms.com</a>
-									<a href="tel:+91xxxxxxxxxx" class="mobile">+91-xxxxx-xxxxx</a>
-								</div> <!-- /.footer-logo -->
-								<div class="col-lg-2 col-sm-6 footer-list">
-									<h4 class="title">Quick Links</h4>
-									<ul>
-										<li><a href="#progress">How it Works</a></li>
-										<li><a href="#contact">Report Bug</a></li>
-										<li><a href="#">Pricing</a></li>
-									</ul>
-								</div> <!-- /.footer-list -->
-								<div class="col-lg-3 col-sm-6 footer-list">
-									<h4 class="title">About Us</h4>
-									<ul>
-										<li><a href="#">Team</a></li>
-										<li><a href="#">Testimonials</a></li>
-									</ul>
-								</div> <!-- /.footer-list -->
-								<div class="col-lg-3 col-sm-6 footer-list">
-									<h4 class="title">Get Started</h4>
-									<ul>
-										{% if user.is_authenticated %}
-										<li><a href="{% url 'home' %}">Dashboard</a></li>
-										{% else %}
-										<li><a href="{% url 'account_login' %}">Login</a></li>
-										{% endif %}
-										<li><a href="#">Terms & Conditions</a></li>
-										<li><a href="#">Privacy Policy</a></li>
-									</ul>
-								</div> <!-- /.footer-list -->
-							</div> <!-- /.row -->
-						</div> <!-- /.top-footer-data-wrapper -->
-
-						<div class="bottom-footer clearfix">
-							<p class="copyright"><script>document.write(new Date().getFullYear())</script> <a href="{% url 'home' %}">&copy;</a> All Right Reserved</p>
-							<ul>
-								<li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
-								<li><a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
-								<li><a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
-							</ul>
-						</div> <!-- /.bottom-footer -->
-					</div>
-				</div> <!-- /.container -->
-			</footer>
-
+			
 		</div> <!-- /.html-top-content -->
 
 		<!-- Scroll Top Button -->
