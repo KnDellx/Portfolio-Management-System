@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class RiskProfile(models.Model):
+  # CASCADE意味着当user实例被删除时与之关联的实例也将被自动删除
   user = models.OneToOneField(User, on_delete=models.CASCADE)
   category = models.CharField(default='Conservative', max_length=30)
   age = models.CharField(default='under-30', max_length=30)

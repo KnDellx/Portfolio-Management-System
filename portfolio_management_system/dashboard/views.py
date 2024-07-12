@@ -15,6 +15,7 @@ from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.fundamentaldata import FundamentalData
 import subprocess as sp
 
+# 平衡多个API密钥的使用
 def get_alphavantage_key():
   alphavantage_keys = [
     settings.ALPHAVANTAGE_KEY1,
@@ -25,12 +26,16 @@ def get_alphavantage_key():
     settings.ALPHAVANTAGE_KEY6,
     settings.ALPHAVANTAGE_KEY7,
   ]
+  # 随机选择
   return random.choice(alphavantage_keys)
 
 @login_required
+# 展示用户的投资组合仪表盘，检查用户石是否有风险档案，然后获取或创建用户的投资组合
 def dashboard(request):
+  # objects提供了一系列方法来执行数据库查询，filter接受任意数量的位置参数和关键字参数返回满足给定条件的所有记录
   if RiskProfile.objects.filter(user=request.user).exists():
     try:
+      # 获取满足给定条件的单个对象
       portfolio = Portfolio.objects.get(user=request.user)
     except:
       portfolio = Portfolio.objects.create(user=request.user)
@@ -211,7 +216,7 @@ def fetch_news():
     "sortBy": "top",
     "apiKey": settings.NEWSAPI_KEY
   }
-  main_url = "https://newsapi.org/v2/top-headlines"
+  main_url = "https://newsapi.org/v2/top-headlines?apiKey=191382c6a0c64a17b4f25390354c531b"
   # fetching data in json format
   res = requests.get(main_url, params=query_params)
   open_bbc_page = res.json()
