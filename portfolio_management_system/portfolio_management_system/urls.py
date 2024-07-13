@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include('home.urls')),
     path('', include('dashboard.urls')),
     path('', include('riskprofile.urls')),
+    path('', include('stockviewer.urls')),
 ]
