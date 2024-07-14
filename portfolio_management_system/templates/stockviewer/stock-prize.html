@@ -7,31 +7,114 @@
     <title>Stock Price Viewer</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <style>
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+            animation: fadeEffect 1s;
+        }
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-5">Stock Price Viewer</h1>
+        <h1 class="mt-5 text-center">Stock Price Viewer</h1>
         <form id="stock-form" class="mt-3" method="POST" action="{% url 'get_stock_data' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="stock-symbol">Enter Stock Symbol:</label>
                 <input type="text" id="stock-symbol" name="symbol" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary">Get Stock Data</button>
+            <button type="submit" class="btn btn-primary btn-block">Get Stock Data</button>
         </form>
         <div class="mt-5" id="stock-data" style="display: none;">
-            <h2>Stock Information</h2>
-            <p><strong>Symbol:</strong> <span id="stock-symbol-display"></span></p>
-            <p><strong>Name:</strong> <span id="stock-name"></span></p>
-            <p><strong>Currency:</strong> <span id="stock-currency"></span></p>
-            <p><strong>Current Price:</strong> <span id="stock-price"></span></p>
-            <p><strong>Volume:</strong> <span id="stock-volume"></span></p>
-            <p><strong>Day High:</strong> <span id="stock-day-high"></span></p>
-            <p><strong>Day Low:</strong> <span id="stock-day-low"></span></p>
-            <p><strong>Previous Close:</strong> <span id="stock-previous-close"></span></p>
-            <p><strong>Alpha:</strong> <span id="stock-alpha"></span></p>
-            <p><strong>Beta:</strong> <span id="stock-beta"></span></p>
-            <div class="mt-5">
+            <h2 class="text-center">Stock Information</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-symbol-display"></h4>
+                            <p class="text-muted mb-0">Symbol</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-name"></h4>
+                            <p class="text-muted mb-0">Name</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-currency"></h4>
+                            <p class="text-muted mb-0">Currency</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="float-right mt-2">
+                                <div id="total-investment-chart"></div>
+                            </div>
+                            <div>
+                                <h4 class="mb-1 mt-1">$ <span data-plugin="counterup">{{ totalInvestment | floatformat:2 }}</span></h4>
+                                <p class="text-muted mb-0">Total Investment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="float-right mt-2">
+                                <div id="current-value-chart"></div>
+                            </div>
+                            <div>
+                                <h4 class="mb-1 mt-1" id="current-value">$ <span data-plugin="counterup">Current Value</span></h4>
+                                <p class="text-muted mb-0">Current Value</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="float-right mt-2">
+                                <div id="pnl-chart"></div>
+                            </div>
+                            <div>
+                                <h4 class="mb-1 mt-1" style="color:#34c38f;" id="unrealized-pnl"><span data-plugin="counterup">Unrealized P&L</span></h4>
+                                <p class="text-muted mb-0">Unrealized P&L</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <p><strong>Current Price:</strong> <span id="stock-price"></span></p>
+                    <p><strong>Volume:</strong> <span id="stock-volume"></span></p>
+                    <p><strong>Day High:</strong> <span id="stock-day-high"></span></p>
+                    <p><strong>Day Low:</strong> <span id="stock-day-low"></span></p>
+                    <p><strong>Previous Close:</strong> <span id="stock-previous-close"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Alpha:</strong> <span id="stock-alpha"></span></p>
+                    <p><strong>Beta:</strong> <span id="stock-beta"></span></p>
+                </div>
+            </div>
+            <div class="mt-5 text-center">
                 <h2>Stock Price History</h2>
                 <div>
                     <h3>Stock Price</h3>
@@ -46,8 +129,11 @@
         $(document).ready(function(){
             $('#stock-form').on('submit', function(event) {
                 event.preventDefault();
-
                 var symbol = $('#stock-symbol').val();
+
+                //显示进度条
+                $('#progress-bar-container').show();
+                $('#progress-bar').css('width', '0%');
 
                 $.ajax({
                     url: '{% url "get_stock_data" %}',
@@ -64,10 +150,20 @@
                         $('#stock-previous-close').text(data.regularMarketPreviousClose !== undefined ? data.regularMarketPreviousClose : 'N/A');
                         $('#stock-alpha').text(data.Alpha !== undefined ? data.Alpha.toFixed(4) : 'N/A');
                         $('#stock-beta').text(data.Beta !== undefined ? data.Beta.toFixed(4) : 'N/A');
-
-                        // 显示股票信息和曲线图
                         $('#stock-data').show();
                         $('#stock-price-plot').attr('src', 'data:image/png;base64,' + data.plot);
+
+                        //更新并隐藏进度条
+                        $('#progress-bar').css('width', '100%');
+                        setTimeout(function() {
+                            $('#progress-bar-container').hide();
+                            $ (progress-bar).css('width', '0%');
+                        }, 500);
+                    },
+                    error: function(){
+                        //请求失败时隐藏进度条
+                        $('#progress-bar-container').hide();
+                        $ (progress-bar).css('width', '0%');
                     }
                 });
             });
