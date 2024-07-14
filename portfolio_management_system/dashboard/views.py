@@ -10,6 +10,18 @@ from .models import Portfolio, StockHolding
 from riskprofile.models import RiskProfile
 from riskprofile.views import risk_profile
 
+# 预测模型所需要的库
+from django.views.decorators.csrf import csrf_exempt
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from keras.models import Sequential
+from keras.layers import LSTM, Dense, Dropout
+from keras.callbacks import EarlyStopping
+from sklearn.metrics import mean_squared_error
+import yfinance as yf
+from datetime import datetime
+
 # AlphaVantage API
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.fundamentaldata import FundamentalData
@@ -239,3 +251,82 @@ def backtesting(request):
   except sp.CalledProcessError:
     output = 'No such command'
   return HttpResponse("Success")
+
+
+
+
+
+#---------------------------------预测模型---------------------------------
+# 准备时间序列数据函数
+def prepare_data(data, n_steps):
+    X, y = [], []
+    for i in range(len(data)-n_steps):
+        X.append(data[i:i+n_steps])
+        y.append(data[i+n_steps])
+    return np.array(X), np.array(y)
+  
+  # LSTM 模型训练和预测视图
+@csrf_exempt
+def lstm_stock_prediction(request):
+    if request.method == 'POST':
+        try:
+            # 获取请求中的股票代码和日期
+            data = request.POST
+            ticker = data.get('ticker')
+            start_date = data.get('start_date')
+            prediction_days = int(data.get('prediction_days'))
+
+            # 下载股票数据
+            df = yf.download(ticker, start=start_date, end=datetime.now().date())
+
+            # 提取收盘价数据
+            data = df['Adj Close'].values.reshape(-1, 1)
+
+            # 数据归一化
+            scaler = MinMaxScaler(feature_range=(0, 1))
+            data_normalized = scaler.fit_transform(data)
+
+            # 设置时间步长
+            n_steps = prediction_days
+            X, y = prepare_data(data_normalized, n_steps)
+
+            # 划分训练集和测试集
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+
+            # 构建 LSTM 模型
+            LSTM_M = Sequential()
+            LSTM_M.add(LSTM(units=50, return_sequences=False, input_shape=(n_steps, 1)))
+            LSTM_M.add(Dropout(0.2))
+            LSTM_M.add(Dense(units=1))
+            LSTM_M.compile(optimizer='adam', loss='mean_squared_error')
+
+            # 训练模型
+            history = LSTM_M.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test),
+                                callbacks=[EarlyStopping(monitor='val_loss', patience=25)], verbose=1)
+
+            # 在测试集上进行预测
+            y_pred = LSTM_M.predict(X_test)
+            y_pred = scaler.inverse_transform(y_pred)
+            y_test_orig = scaler.inverse_transform(y_test)
+
+            # 评估模型性能
+            mse_lstm = mean_squared_error(y_test_orig, y_pred)
+
+            # 返回 JSON 数据
+            response_data = {
+                'success': True,
+                'message': 'LSTM model trained and evaluated successfully.',
+                'mse_lstm': mse_lstm
+                # 可以添加其他需要返回的数据，比如预测结果等
+            }
+
+            return JsonResponse(response_data)
+
+        except Exception as e:
+            response_data = {
+                'success': False,
+                'message': f'Error: {str(e)}'
+            }
+            return JsonResponse(response_data)
+
+    return render(request, 'dashboard.html')
