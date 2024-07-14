@@ -10,50 +10,46 @@ document.getElementById('forecast-form').addEventListener('submit', function (ev
     const predictionDays = document.getElementById('prediction-days').value;
     
     // Call your backend API to get forecast data
-    fetch('/api/getForecast', {
+    fetch('/lstm_stock_prediction/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ stockCode, startDate, predictionDays })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
-        // Assuming data contains { lstm, randomForest, lstmMSE, randomForestMSE }
-        document.getElementById('forecast-results').style.display = 'block';
+        if (data.success) {
+            document.getElementById('forecast-results').style.display = 'block';
 
-        // Render LSTM chart
-        new Chart(document.getElementById('lstm-chart'), {
-            type: 'line',
-            data: {
-                labels: data.dates,
-                datasets: [{
-                    label: 'LSTM Forecast',
-                    data: data.lstm,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: { responsive: true }
-        });
-
-        // Render Random Forest chart
-        new Chart(document.getElementById('random-forest-chart'), {
-            type: 'line',
-            data: {
-                labels: data.dates,
-                datasets: [{
-                    label: 'Random Forest Forecast',
-                    data: data.randomForest,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: { responsive: true }
-        });
-
-        // Display MSE values
-        document.getElementById('lstm-mse').textContent = 'LSTM MSE: ' + data.lstmMSE;
-        document.getElementById('random-forest-mse').textContent = 'Random Forest MSE: ' + data.randomForestMSE;
+            // Render LSTM chart
+            new Chart(document.getElementById('forecast-chart'), {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: `${data.model} Forecast`,
+                        data: data.predictions,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: { responsive: true }
+            });
+            
+            document.getElementById('mse').textContent = `MSE: ${data.mse}`;
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        alert('Error fetching data. Please try again later.');
     });
 });
+

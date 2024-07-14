@@ -171,11 +171,6 @@
             $('#stock-form').on('submit', function(event) {
                 event.preventDefault();
                 var symbol = $('#stock-symbol').val();
-        
-                // 显示进度条
-                $('#progress-bar-container').show();
-                $('#progress-bar').css('width', '50%');
-        
                 $.ajax({
                     url: '{% url "get_stock_data" %}',
                     type: 'POST',
@@ -193,18 +188,6 @@
                         $('#stock-beta').text(data.Beta !== undefined ? data.Beta.toFixed(4) : 'N/A');
                         $('#stock-data').show();
                         $('#stock-price-plot').attr('src', 'data:image/png;base64,' + data.plot);
-        
-                        // 更新并隐藏进度条
-                        $('#progress-bar').css('width', '100%');
-                        setTimeout(function() {
-                            $('#progress-bar-container').hide();
-                            $('#progress-bar').css('width', '0%');
-                        }, 500);
-                    },
-                    error: function() {
-                        // 请求失败时隐藏进度条
-                        $('#progress-bar-container').hide();
-                        $('#progress-bar').css('width', '0%');
                     }
                 });
             });

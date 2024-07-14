@@ -20,7 +20,13 @@ from keras.layers import LSTM, Dense, Dropout
 from keras.callbacks import EarlyStopping
 from sklearn.metrics import mean_squared_error
 import yfinance as yf
-from datetime import datetime
+from datetime import datetime,timedelta
+from statsmodels.tsa.arima_model import ARIMA
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import GridSearchCV
+import pandas as pd
+
+
 
 # AlphaVantage API
 from alpha_vantage.timeseries import TimeSeries
@@ -257,76 +263,149 @@ def backtesting(request):
 
 
 #---------------------------------预测模型---------------------------------
-# 准备时间序列数据函数
-def prepare_data(data, n_steps):
-    X, y = [], []
-    for i in range(len(data)-n_steps):
-        X.append(data[i:i+n_steps])
-        y.append(data[i+n_steps])
-    return np.array(X), np.array(y)
-  
-  # LSTM 模型训练和预测视图
 @csrf_exempt
 def lstm_stock_prediction(request):
     if request.method == 'POST':
         try:
-            # 获取请求中的股票代码和日期
-            data = request.POST
-            ticker = data.get('ticker')
-            start_date = data.get('start_date')
-            prediction_days = int(data.get('prediction_days'))
+            data = json.loads(request.body)
+            ticker = data['stockCode']
+            start_date = data['startDate']
+            forecast_days = int(data['predictionDays'])
+             # 解析日期字符串，假设格式为 YYYY/MM/DD
+            start_date = datetime.strptime(start_date, '%Y/%m/%d').date()
+        except (json.JSONDecodeError, KeyError) as e:
+            return JsonResponse({'success': False, 'message': f'Invalid JSON data: {str(e)}'})
+        end_date = datetime.now().date()
+        # 下载股票数据
+        df = yf.download(ticker, start=start_date, end=end_date)
+        if df.empty:
+            return JsonResponse({'success': False, 'message': 'Invalid stock code or insufficient data.'})
+        
+        # 数据处理
+        data = df['Adj Close'].values.reshape(-1, 1)
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        data_normalized = scaler.fit_transform(data)
 
-            # 下载股票数据
-            df = yf.download(ticker, start=start_date, end=datetime.now().date())
+        def prepare_data(data, n_steps):
+            X, y = [], []
+            for i in range(len(data) - n_steps):
+                X.append(data[i:i + n_steps])
+                y.append(data[i + n_steps])
+            return np.array(X), np.array(y)
 
-            # 提取收盘价数据
-            data = df['Adj Close'].values.reshape(-1, 1)
+        n_steps = 15
+        X, y = prepare_data(data_normalized, n_steps)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
-            # 数据归一化
-            scaler = MinMaxScaler(feature_range=(0, 1))
-            data_normalized = scaler.fit_transform(data)
+        # LSTM Model
+        lstm_model = Sequential()
+        lstm_model.add(LSTM(units=50, return_sequences=False, input_shape=(n_steps, 1)))
+        lstm_model.add(Dropout(0.2))
+        lstm_model.add(Dense(units=1))
+        lstm_model.compile(optimizer='adam', loss='mean_squared_error')
+        lstm_model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test),
+                       callbacks=[EarlyStopping(monitor='val_loss', patience=25)], verbose=1)
+        y_pred_lstm = lstm_model.predict(X_test)
+        y_pred_lstm = scaler.inverse_transform(y_pred_lstm)
+        y_test_orig_lstm = scaler.inverse_transform(y_test)
+        mse_lstm = mean_squared_error(y_test_orig_lstm, y_pred_lstm)
 
-            # 设置时间步长
-            n_steps = prediction_days
-            X, y = prepare_data(data_normalized, n_steps)
+        # ARIMA Model
+        ts_data = df['Adj Close']
+        train_size = int(len(ts_data) * 0.8)
+        train_data, test_data = ts_data[:train_size], ts_data[train_size:]
+        # adf检验函数
+        def adf_test(timeseries):
+            from statsmodels.tsa.stattools import adfuller
+            result = adfuller(timeseries)
+            # 返回p值
+            return result[1]
+        # 自动确定合适的拆分函数
+        def find_best_diff_order(data):
+            for i in range(4):
+                p_value = adf_test(data)
+                if p_value < 0.05:
+                    return i
+                data = data.diff().dropna()
+            return i
 
-            # 划分训练集和测试集
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+        I = find_best_diff_order(ts_data)
+        mse_arima = float('inf')
+        best_p, best_q = 0, 0
+        for p in range(5):
+            for q in range(5):
+                model = ARIMA(ts_data, order=(p, I, q))
+                model_fit = model.fit()
+                forecast = model_fit.forecast(steps=len(test_data))
+                actual_values = ts_data[-len(test_data):].values
+                mse = mean_squared_error(actual_values, forecast)
+                if mse < mse_arima:
+                    mse_arima = mse
+                    best_p, best_q = p, q
 
-            # 构建 LSTM 模型
-            LSTM_M = Sequential()
-            LSTM_M.add(LSTM(units=50, return_sequences=False, input_shape=(n_steps, 1)))
-            LSTM_M.add(Dropout(0.2))
-            LSTM_M.add(Dense(units=1))
-            LSTM_M.compile(optimizer='adam', loss='mean_squared_error')
+        # Random Forest Model
+        param_grid = {
+            'n_estimators': np.arange(60, 131, 10),
+            'learning_rate': np.arange(0.01, 0.11, 0.01),
+            'max_depth': np.arange(3, 7)
+        }
+        # 构建梯度提升树模型
+        gbr_model = GradientBoostingRegressor(random_state=42)
+        # 网格搜索法寻找最优参数
+        grid_search = GridSearchCV(estimator=gbr_model, param_grid=param_grid, cv=3, scoring='neg_mean_squared_error', verbose=1)
+        grid_search.fit(X_train.reshape(-1, n_steps), y_train.ravel())
+        gbr_best_model = grid_search.best_estimator_
+        gbr_best_model.fit(X_train.reshape(-1, n_steps), y_train.ravel())
+        # 在测试集上进行预测
+        y_pred_rf = gbr_best_model.predict(X_test.reshape(-1, n_steps))
+        y_pred_rf = scaler.inverse_transform(y_pred_rf.reshape(-1, 1))
+        y_test_orig_rf = scaler.inverse_transform(y_test)
+        mse_rf = mean_squared_error(y_test_orig_rf, y_pred_rf)
 
-            # 训练模型
-            history = LSTM_M.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test),
-                                callbacks=[EarlyStopping(monitor='val_loss', patience=25)], verbose=1)
-
-            # 在测试集上进行预测
-            y_pred = LSTM_M.predict(X_test)
-            y_pred = scaler.inverse_transform(y_pred)
-            y_test_orig = scaler.inverse_transform(y_test)
-
-            # 评估模型性能
-            mse_lstm = mean_squared_error(y_test_orig, y_pred)
-
-            # 返回 JSON 数据
-            response_data = {
-                'success': True,
-                'message': 'LSTM model trained and evaluated successfully.',
-                'mse_lstm': mse_lstm
-                # 可以添加其他需要返回的数据，比如预测结果等
-            }
-
-            return JsonResponse(response_data)
-
-        except Exception as e:
-            response_data = {
-                'success': False,
-                'message': f'Error: {str(e)}'
-            }
-            return JsonResponse(response_data)
-
-    return render(request, 'dashboard.html')
+        # 模型择优
+        min_mse = min(mse_lstm, mse_arima, mse_rf)
+        if min_mse == mse_lstm:
+          # 人工选择回溯步长
+            last_window = data_normalized[-n_steps:].reshape(1, n_steps, 1)
+            predicted_prices = []
+            for _ in range(forecast_days):
+                predicted_price = lstm_model.predict(last_window)
+                predicted_prices.append(predicted_price)
+                last_window = np.append(last_window[:, 1:, :], predicted_price.reshape(1, 1, 1), axis=1)
+            predicted_prices = scaler.inverse_transform(np.array(predicted_prices).reshape(-1, 1))
+            model_name = "LSTM"
+            mse = mse_lstm
+        elif min_mse == mse_arima:
+            last_window = ts_data[-n_steps:].values
+            predicted_prices = []
+            for _ in range(forecast_days):
+                model = ARIMA(last_window, order=(best_p, I, best_q))
+                model_fit = model.fit()
+                forecast = model_fit.forecast(steps=1)
+                predicted_prices.append(forecast[0])
+                last_window = np.append(last_window[1:], forecast[0])
+            model_name = "ARIMA"
+            mse = mse_arima
+        else:
+            last_window = data_normalized[-n_steps:].reshape(1, -1)
+            predicted_prices = []
+            for _ in range(forecast_days):
+                predicted_price = gbr_best_model.predict(last_window)
+                predicted_prices.append(predicted_price)
+                last_window = np.append(last_window[:, 1:], predicted_price).reshape(1, -1)
+            predicted_prices = scaler.inverse_transform(np.array(predicted_prices).reshape(-1, 1))
+            model_name = "Random Forest"
+            mse = mse_rf
+        # 生成正确的日期标签
+        future_dates = [str((datetime.now().date() + timedelta(days=i)).isoformat()) for i in range(1, forecast_days + 1)]
+        predicted_prices = predicted_prices.flatten().tolist()
+        
+        return JsonResponse({
+            'success': True,
+            'model': model_name,
+            'mse': mse,
+            'dates': future_dates,
+            'predictions': predicted_prices
+        })
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'})

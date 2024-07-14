@@ -216,7 +216,7 @@
 
                                     <li class="nav-item">
                                         <a class="nav-link" onclick="openTab(event, 'portfolio-insights')">
-                                            <i class="uil-briefcase-alt mr-2"></i> Portfolio Insights
+                                            <i class="uil-briefcase-alt mr-2"></i> Portfolio Prediction
                                         </a>
                                     </li>
 
@@ -601,7 +601,7 @@
                                             <ol class="breadcrumb m-0">
                                                 <li class="breadcrumb-item"><a href="javascript: void(0);">Home</a></li>
                                                 <li class="breadcrumb-item">Dashboard</li>
-                                                <li class="breadcrumb-item active">Portfolio Insights</li>
+                                                <li class="breadcrumb-item active">Portfolio Prediction</li>
                                             </ol>
                                         </div>
 
@@ -611,34 +611,6 @@
                             <!-- end page title -->
 
                             <div class="row">
-                                <div class="col-md-6 col-sm-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="float-right mt-2">
-                                                <div id="total-investment-chart"></div>
-                                            </div>
-                                            <div>
-                                                <h4 class="mb-1 mt-1">Beta (β) : <span id="portfolio-beta">Beta</span></h4>
-                                                <p class="text-muted" id="portfolio-beta-text">Your portfolio moves by a factor of 0 in the direction of market swing</p>
-                                                <p class="mb-0"><a href="#" style="padding-top: 20px;">See Calculations &nbsp;<i class="fas fa-long-arrow-alt-right"></i></a></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> <!-- end col-->
-                                <div class="col-md-6 col-sm-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="float-right mt-2">
-                                                <div id="total-investment-chart"></div>
-                                            </div>
-                                            <div>
-                                                <h4 class="mb-1 mt-1">PE Ratio : <span id="portfolio-pe">PE</span></h4>
-                                                <p class="text-muted">This is a holdings-weighted consolidated PE Ratio of all the stocks held in your portfolio</p>
-                                                <p class="mb-0"><a href="#" style="padding-top: 20px;">See Calculations &nbsp;<i class="fas fa-long-arrow-alt-right"></i></a></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> <!-- end col-->
                                 <div class="col-md-6 col-sm-12">
                                     <div class="card">
                                         <div class="card-body">
@@ -682,35 +654,18 @@
                                                     </div>
                                                     <button type="submit" class="btn btn-primary">Generate Forecast</button>
                                                 </form>
-                                                <hr>
+                                            
                                                 <h5>Forecast Results</h5>
                                                 <div id="forecast-results" style="display: none;">
-                                                    <canvas id="lstm-chart"></canvas>
-                                                    <canvas id="random-forest-chart"></canvas>
+                                                    <canvas id="Best-chart"></canvas>
                                                     <h6>Mean Squared Error (MSE)</h6>
-                                                    <p id="lstm-mse"></p>
-                                                    <p id="random-forest-mse"></p>
+                                                    <p id="Best-mse"></p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <!-- end Modal -->
-
-                                <div class="col-md-6 col-sm-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="float-right mt-2">
-                                                <div id="total-investment-chart"></div>
-                                            </div>
-                                            <div>
-                                                <h4 class="mb-1 mt-1">Redflags : <span style="color:#f46a6a;">0 &nbsp;<i class="fas fa-flag"></i></span></h4>
-                                                <p class="text-muted">We spotted possible redflags with 0 of the securities in your portfolio</p>
-                                                <p class="mb-0"><a href="#" style="padding-top: 20px;">See Redflags &nbsp;<i class="fas fa-long-arrow-alt-right"></i></a></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> <!-- end col-->
                             </div>
 
                             <footer class="footer">
