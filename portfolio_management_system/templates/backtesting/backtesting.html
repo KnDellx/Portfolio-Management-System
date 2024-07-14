@@ -1,0 +1,88 @@
+<!-- backtesting/templates/backtesting/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtesting Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Stock Backtesting Engine</h1>
+        <div class="row mt-4">
+            <div class="col-md-6 offset-md-3">
+                <div class="form-group">
+                    <label for="ticker">Stock Code:</label>
+                    <input type="text" class="form-control" id="ticker" placeholder="Enter stock code">
+                </div>
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" class="form-control" id="start_date">
+                </div>
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" class="form-control" id="end_date">
+                </div>
+                <div class="form-group">
+                    <label for="initial_balance">Initial Funds:</label>
+                    <input type="number" class="form-control" id="initial_balance" placeholder="Enter initial funds">
+                </div>
+                <div class="form-group">
+                    <label for="stop_loss">Stop Loss Ratio:</label>
+                    <input type="number" step="0.01" class="form-control" id="stop_loss" placeholder="Enter stop loss ratio">
+                </div>
+                <div class="form-group">
+                    <label for="take_profit">Take Profit Ratio:</label>
+                    <input type="number" step="0.01" class="form-control" id="take_profit" placeholder="Enter take profit ratio">
+                </div>
+                <button class="btn btn-primary mt-3" onclick="openBacktestingEngine()">Open Backtesting Engine</button>
+            </div>
+        </div>
+        <div class="mt-5" id="results"></div>
+    </div>
+
+    <script>
+        function openBacktestingEngine() {
+            var ticker = $('#ticker').val();
+            var start_date = $('#start_date').val();
+            var end_date = $('#end_date').val();
+            var initial_balance = $('#initial_balance').val();
+            var stop_loss = $('#stop_loss').val();
+            var take_profit = $('#take_profit').val();
+
+            $.ajax({
+                url: '/backtesting/',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    ticker: ticker,
+                    start_date: start_date,
+                    end_date: end_date,
+                    initial_balance: initial_balance,
+                    stop_loss: stop_loss,
+                    take_profit: take_profit
+                }),
+                success: function(response) {
+                    $('#results').html(`
+                        <h3>Results</h3>
+                        <p>Final Balance: $${response.final_balance.toFixed(2)}</p>
+                        <p>Buy Signals: ${JSON.stringify(response.buy_signals)}</p>
+                        <p>Sell Signals: ${JSON.stringify(response.sell_signals)}</p>
+                        <p>Beta: ${response.beta.toFixed(4)}</p>
+                        <p>Sharpe Ratio: ${response.sharpe_ratio.toFixed(4)}</p>
+                        <p>Alpha: ${response.alpha.toFixed(4)}</p>
+                        <p>Total Return: ${(response.total_return * 100).toFixed(2)}%</p>
+                        <p>Optimal Parameters: SMA Short Window = ${response.sma_short_window}, SMA Long Window = ${response.sma_long_window}</p>
+                    `);
+                },
+                error: function(error) {
+                    alert('Error: ' + error.responseJSON.message);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
