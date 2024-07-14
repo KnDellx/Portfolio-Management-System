@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Price Viewer</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/css/custom.css' %}">
     <style>
         .tabcontent {
             display: none;
@@ -55,7 +55,7 @@
                     <div class="card">
                         <div class="card-body text-center">
                             <h4 class="mb-1 mt-1" id="stock-currency"></h4>
-                            <p class="text-muted mb-0">Currency</p>
+                            <p class="text-muted mb-0">Currency Unit</p>
                         </div>
                     </div>
                 </div>
@@ -90,9 +90,6 @@
                 <div class="col-md-6 col-xl-4">
                     <div class="card">
                         <div class="card-body">
-                            <div class="float-right mt-2">
-                                <div id="pnl-chart"></div>
-                            </div>
                             <div>
                                 <h4 class="mb-1 mt-1" style="color:#34c38f;" id="unrealized-pnl"><span data-plugin="counterup">Unrealized P&L</span></h4>
                                 <p class="text-muted mb-0">Unrealized P&L</p>
@@ -102,16 +99,61 @@
                 </div>
             </div>
             <div class="row mt-4">
-                <div class="col-md-6">
-                    <p><strong>Current Price:</strong> <span id="stock-price"></span></p>
-                    <p><strong>Volume:</strong> <span id="stock-volume"></span></p>
-                    <p><strong>Day High:</strong> <span id="stock-day-high"></span></p>
-                    <p><strong>Day Low:</strong> <span id="stock-day-low"></span></p>
-                    <p><strong>Previous Close:</strong> <span id="stock-previous-close"></span></p>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-price"></h4>
+                            <p class="text-muted mb-0">Current Price</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <p><strong>Alpha:</strong> <span id="stock-alpha"></span></p>
-                    <p><strong>Beta:</strong> <span id="stock-beta"></span></p>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" style = "color:#34c38f;" id="stock-volume"><span data-plugin="counterup">Volume</span></h4>
+                            <p class="text-muted mb-0">Volume</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-day-high"></h4>
+                            <p class="text-muted mb-0">Day High</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-day-low"></h4>
+                            <p class="text-muted mb-0">Day Low</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-previous-close"></h4>
+                            <p class="text-muted mb-0">Previous Close</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-alpha"></h4>
+                            <p class="text-muted mb-0">Alpha</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h4 class="mb-1 mt-1" id="stock-beta"></h4>
+                            <p class="text-muted mb-0">Beta</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="mt-5 text-center">
@@ -123,18 +165,18 @@
             </div>
         </div>
     </div>
-
+    
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         $(document).ready(function(){
             $('#stock-form').on('submit', function(event) {
                 event.preventDefault();
                 var symbol = $('#stock-symbol').val();
-
-                //显示进度条
+        
+                // 显示进度条
                 $('#progress-bar-container').show();
-                $('#progress-bar').css('width', '0%');
-
+                $('#progress-bar').css('width', '50%');
+        
                 $.ajax({
                     url: '{% url "get_stock_data" %}',
                     type: 'POST',
@@ -152,22 +194,23 @@
                         $('#stock-beta').text(data.Beta !== undefined ? data.Beta.toFixed(4) : 'N/A');
                         $('#stock-data').show();
                         $('#stock-price-plot').attr('src', 'data:image/png;base64,' + data.plot);
-
-                        //更新并隐藏进度条
+        
+                        // 更新并隐藏进度条
                         $('#progress-bar').css('width', '100%');
                         setTimeout(function() {
                             $('#progress-bar-container').hide();
-                            $ (progress-bar).css('width', '0%');
+                            $('#progress-bar').css('width', '0%');
                         }, 500);
                     },
-                    error: function(){
-                        //请求失败时隐藏进度条
+                    error: function() {
+                        // 请求失败时隐藏进度条
                         $('#progress-bar-container').hide();
-                        $ (progress-bar).css('width', '0%');
+                        $('#progress-bar').css('width', '0%');
                     }
                 });
             });
         });
+        
     </script>
 </body>
 </html>
