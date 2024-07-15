@@ -1,3 +1,5 @@
+
+# -- coding: utf-8 --
 import csv
 import json
 import random
@@ -21,7 +23,7 @@ from keras.callbacks import EarlyStopping
 from sklearn.metrics import mean_squared_error
 import yfinance as yf
 from datetime import datetime,timedelta
-from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
 import pandas as pd
@@ -249,15 +251,16 @@ def fetch_news():
     news.append((results[-1], None))
   return news
 
-
 def backtesting(request):
   print('Function Called')
+  return render(request, 'ba/backtesting.html')
+  """
   try:
     output = sp.check_output("quantdom", shell=True)
   except sp.CalledProcessError:
     output = 'No such command'
   return HttpResponse("Success")
-
+  """
 
 
 
@@ -271,8 +274,8 @@ def lstm_stock_prediction(request):
             ticker = data['stockCode']
             start_date = data['startDate']
             forecast_days = int(data['predictionDays'])
-             # 解析日期字符串，假设格式为 YYYY/MM/DD
-            start_date = datetime.strptime(start_date, '%Y/%m/%d').date()
+            # 解析日期字符串，假设格式为 YYYY-MM-DD
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         except (json.JSONDecodeError, KeyError) as e:
             return JsonResponse({'success': False, 'message': f'Invalid JSON data: {str(e)}'})
         end_date = datetime.now().date()

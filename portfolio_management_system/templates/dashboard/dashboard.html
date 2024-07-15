@@ -62,7 +62,7 @@
                             </a>
                         </div>
 
-                        <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light" data-toggle="collapse" data-target="#topnav-menu-content">
+                        <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light" data-toggle="collapse" data-target="#topnav-menu-content" title = "Toggle Menu">
                             <i class="fa fa-fw fa-bars"></i>
                         </button>
 
@@ -71,7 +71,7 @@
                     <div class="d-flex">
                         <div class="dropdown d-inline-block d-lg-none ml-2">
                             <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Search Dropdown">
                                 <i class="uil-search"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right p-0"
@@ -82,7 +82,7 @@
                                         <div class="input-group">
                                             <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
                                             <div class="input-group-append">
-                                                <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
+                                                <button class="btn btn-primary" type="submit" title="Search"><i class="mdi mdi-magnify"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -420,6 +420,7 @@
                                                                 {% csrf_token %}
                                                                 <div class="form-group row mb-4">
                                                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Stock Ticker :</label>
+                                                                    <input type="text" id="stock-ticker-input" class="form-control" placeholder="Enter stock ticker...">
                                                                     <div class="col-sm-9">
                                                                         <select name="company" class="form-control select2 select2-hidden-accessible" id="company" data-select2-id="1" tabindex="-1" aria-hidden="true"></select>
                                                                     </div>
@@ -625,8 +626,7 @@
                                         </div>
                                     </div>
                                 </div> <!-- end col-->
-                                <!--导入forecast.js文件，使得可以使用里面的功能-->
-                                <script src="{% static 'dashboard/js/forecast.js' %}"></script>
+                                
                                 <!-- Modal -->
                                 <div class="modal fade" id="forecastReportModal" tabindex="-1" role="dialog" aria-labelledby="forecastReportModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-lg" role="document">
@@ -665,6 +665,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!--导入forecast.js文件，使得可以使用里面的功能-->
+                                <script src="{% static 'dashboard/js/forecast.js' %}"></script>
+
                                 <!-- end Modal -->
                             </div>
 
@@ -1024,7 +1027,7 @@
                             </div>
                             <!-- end page title -->
 
-                            <a class="btn btn-primary" href="{% url 'backtesting/backtesting' %}">Open Backtesting Engine</a>
+                            <a class="btn btn-primary" href="{% url 'backtesting' %}">Open Backtesting Engine</a>
 
 
 
