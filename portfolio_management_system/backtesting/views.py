@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from datetime import datetime
+import traceback
 
 # 获取用户输入的股票数据
 def get_stock_data(ticker, start_date, end_date):
@@ -167,49 +168,67 @@ def plot_signals(df, buy_signals, sell_signals, ticker):
 @csrf_exempt
 def backtesting_engine(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        ticker = data['ticker']
-        start_date = data['start_date']
-        end_date = data['end_date']
-        initial_balance = float(data['initial_balance'])
-        stop_loss = float(data['stop_loss'])
-        take_profit = float(data['take_profit'])
+        try:
+            data = json.loads(request.body)
+            ticker = data['ticker']
+            start_date = data['start_date']
+            end_date = data['end_date']
+            initial_balance = float(data['initial_balance'])
+            stop_loss = float(data['stop_loss'])
+            take_profit = float(data['take_profit'])
 
-        stock_data = get_stock_data(ticker, start_date, end_date)
-        stock_data_cleaned = stock_data.dropna()
+            stock_data = get_stock_data(ticker, start_date, end_date)
+            stock_data_cleaned = stock_data.dropna()
 
-        # 获取市场基准数据（例如S&P 500指数）
-        market_data = get_stock_data('^GSPC', start_date, end_date)['Adj Close']
+            market_data = get_stock_data('^GSPC', start_date, end_date)['Adj Close']
 
-        # 优化策略参数
-        sma_short_window_range = range(10, 50, 5)  # 短期均线窗口范围
-        sma_long_window_range = range(50, 200, 10)  # 长期均线窗口范围
+            sma_short_window_range = range(10, 50, 5)
+            sma_long_window_range = range(50, 200, 10)
 
-        best_params, best_results = optimize_strategy(
-            stock_data_cleaned, market_data, initial_balance, stop_loss, take_profit, 'M',
-            sma_short_window_range, sma_long_window_range
-        )
+            best_params, best_results = optimize_strategy(
+                stock_data_cleaned, market_data, initial_balance, stop_loss, take_profit, 'M',
+                sma_short_window_range, sma_long_window_range
+            )
 
-        if best_params is None:
-            return JsonResponse({"message": "A suitable combination of parameters was not found."}, status=400)
+            if best_params is None:
+                return JsonResponse({"message": "A suitable combination of parameters was not found."}, status=400)
 
-        sma_short_window, sma_long_window = best_params
-        final_balance, buy_signals, sell_signals, beta, sharpe_ratio, alpha, total_return = best_results
+            sma_short_window, sma_long_window = best_params
+            final_balance, buy_signals, sell_signals, beta, sharpe_ratio, alpha, total_return = best_results
 
-        data_with_indicators = calculate_technical_indicators(stock_data_cleaned.copy(), sma_short_window, sma_long_window)
-        data_with_signals = generate_signals(data_with_indicators)
-        plot_signals(data_with_signals, buy_signals, sell_signals, ticker)
+            data_with_indicators = calculate_technical_indicators(stock_data_cleaned.copy(), sma_short_window, sma_long_window)
+            data_with_signals = generate_signals(data_with_indicators)
+            plot_signals(data_with_signals, buy_signals, sell_signals, ticker)
+            
+            plot_data = {
+                'dates': data_with_signals.index.tolist(),
+                'adj_close': data_with_signals['Adj Close'].tolist(),
+                'sma_short': data_with_signals['SMA_Short'].tolist(),
+                'sma_long': data_with_signals['SMA_Long'].tolist(),
+                'rsi': data_with_signals['RSI'].tolist(),
+                'macd': data_with_signals['MACD'].tolist(),
+                'macd_signal': data_with_signals['MACD_signal'].tolist(),
+                'macd_diff': data_with_signals['MACD_diff'].tolist(),
+                'buy_signals': buy_signals,
+                'sell_signals': sell_signals
+            }
 
-        return JsonResponse({
-            'final_balance': final_balance,
-            'buy_signals': buy_signals,
-            'sell_signals': sell_signals,
-            'beta': beta,
-            'sharpe_ratio': sharpe_ratio,
-            'alpha': alpha,
-            'total_return': total_return,
-            'sma_short_window': sma_short_window,
-            'sma_long_window': sma_long_window
-        })
+
+            return JsonResponse({
+                'final_balance': final_balance,
+                'buy_signals': buy_signals,
+                'sell_signals': sell_signals,
+                'beta': beta,
+                'sharpe_ratio': sharpe_ratio,
+                'alpha': alpha,
+                'total_return': total_return,
+                'sma_short_window': sma_short_window,
+                'sma_long_window': sma_long_window,
+                'plot_data': plot_data
+            })
+
+        except Exception as e:
+            traceback.print_exc()
+            return JsonResponse({"message": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"message": "Invalid request method."}, status=405)
