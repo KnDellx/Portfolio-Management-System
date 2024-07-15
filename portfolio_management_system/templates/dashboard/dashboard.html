@@ -419,6 +419,7 @@
                                                             <form id="add-holding-form" method="post" action="{% url 'add-holding' %}">
                                                                 {% csrf_token %}
                                                                 <div class="form-group row mb-4">
+                                                                    <!--for属性与页面上某个输入元素的id匹配-->
                                                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Stock Ticker :</label>
                                                                     <input type="text" id="stock-ticker-input" class="form-control" placeholder="Enter stock ticker...">
                                                                     <div class="col-sm-9">
@@ -450,6 +451,7 @@
                                             </div>
 
                                             <div class="table-responsive">
+                                                <!--table-nowrap目的是防止表格中的文本换行，mb-0是为了将元素下边距设置为0-->
                                                 <table class="table table-centered table-nowrap mb-0" id="portfolio-table">
                                                     <thead class="thead-light">
                                                         <tr>

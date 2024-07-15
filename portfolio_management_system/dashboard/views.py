@@ -37,6 +37,7 @@ import subprocess as sp
 
 # 平衡多个API密钥的使用
 def get_alphavantage_key():
+  """
   alphavantage_keys = [
     settings.ALPHAVANTAGE_KEY1,
     settings.ALPHAVANTAGE_KEY2,
@@ -46,8 +47,10 @@ def get_alphavantage_key():
     settings.ALPHAVANTAGE_KEY6,
     settings.ALPHAVANTAGE_KEY7,
   ]
+  """
+  alphavantage_key = "767ECK0JKR7YDLBP"
   # 随机选择
-  return random.choice(alphavantage_keys)
+  return alphavantage_key
 
 @login_required
 # 展示用户的投资组合仪表盘，检查用户石是否有风险档案，然后获取或创建用户的投资组合
@@ -186,19 +189,25 @@ def add_holding(request):
       company_name = request.POST['company'].split('(')[0].strip()
       number_stocks = int(request.POST['number-stocks'])
       ts = TimeSeries(key=get_alphavantage_key(), output_format='json')
+      # 返回该股票的完整每日时间序列数据
       data, meta_data = ts.get_daily(symbol=company_symbol, outputsize='full')
+      # 获取当日收盘价
       buy_price = float(data[request.POST['date']]['4. close'])
+      # 用于获取不同类型的财务数据，例如公司概览、收入声明、资产负债表和现金流量表等
       fd = FundamentalData(key=get_alphavantage_key(), output_format='json')
       data, meta_data = fd.get_company_overview(symbol=company_symbol)
       sector = data['Sector']
 
+      # 检查是否已经持有该公司的股票
       found = False
+      # 如果找到了该公司的股票，则将购买价值添加到购买价值列表中
+      # 如果是已经有的公司的股票，则直接添加购买价值
       for c in holding_companies:
         if c.company_symbol == company_symbol:
           c.buying_value.append([buy_price, number_stocks])
           c.save()
           found = True
-
+      # 如果没有找到该公司的股票，则创建一个新的StockHolding对象
       if not found:
         c = StockHolding.objects.create(
           portfolio=portfolio, 

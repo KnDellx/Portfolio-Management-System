@@ -167,15 +167,15 @@ def plot_signals(df, buy_signals, sell_signals, ticker):
 
 @csrf_exempt
 def backtesting_engine(request):
+    print(request)
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            ticker = data['ticker']
-            start_date = data['start_date']
-            end_date = data['end_date']
-            initial_balance = float(data['initial_balance'])
-            stop_loss = float(data['stop_loss'])
-            take_profit = float(data['take_profit'])
+            ticker = request.POST.get('ticker')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            initial_balance = float(request.POST.get('initial_balance'))
+            stop_loss = float(request.POST.get('stop_loss'))
+            take_profit = float(request.POST.get('take_profit'))
 
             stock_data = get_stock_data(ticker, start_date, end_date)
             stock_data_cleaned = stock_data.dropna()

@@ -3,208 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>Backtesting Engine</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
-    </script>
 </head>
 <body>
+    <div id="loading-indicator" class="progress mt-3" style="display: none;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+    </div>
     <div class="container mt-5">
         <h1 class="text-center">Stock Backtesting Engine</h1>
         <div class="row mt-4">
             <div class="col-md-6 offset-md-3">
-                <div class="form-group">
-                    <label for="ticker">Stock Code:</label>
-                    <input type="text" class="form-control" id="ticker" placeholder="Enter stock code">
-                </div>
-                <div class="form-group">
-                    <label for="start_date">Start Date:</label>
-                    <input type="date" class="form-control" id="start_date">
-                </div>
-                <div class="form-group">
-                    <label for="end_date">End Date:</label>
-                    <input type="date" class="form-control" id="end_date">
-                </div>
-                <div class="form-group">
-                    <label for="initial_balance">Initial Funds:</label>
-                    <input type="number" class="form-control" id="initial_balance" placeholder="Enter initial funds">
-                </div>
-                <div class="form-group">
-                    <label for="stop_loss">Stop Loss Ratio:</label>
-                    <input type="number" step="0.01" class="form-control" id="stop_loss" placeholder="Enter stop loss ratio">
-                </div>
-                <div class="form-group">
-                    <label for="take_profit">Take Profit Ratio:</label>
-                    <input type="number" step="0.01" class="form-control" id="take_profit" placeholder="Enter take profit ratio">
-                </div>
-                <button class="btn btn-primary mt-3" onclick="openBacktestingEngine()">Open Backtesting Engine</button>
+                <form id="backtesting-form" method = "POST" action = "{% url "backtesting_engine" %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="ticker">Stock Code:</label>
+                        <input type="text" class="form-control" id="ticker" placeholder="Enter stock code">
+                    </div>
+                    <div class="form-group">
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" class="form-control" id="start_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date:</label>
+                        <input type="date" class="form-control" id="end_date">
+                    </div>
+                    <div class="form-group">
+                        <label for="initial_balance">Initial Funds:</label>
+                        <input type="number" class="form-control" id="initial_balance" placeholder="Enter initial funds">
+                    </div>
+                    <div class="form-group">
+                        <label for="stop_loss">Stop Loss Ratio:</label>
+                        <input type="number" step="0.01" class="form-control" id="stop_loss" placeholder="Enter stop loss ratio">
+                    </div>
+                    <div class="form-group">
+                        <label for="take_profit">Take Profit Ratio:</label>
+                        <input type="number" step="0.01" class="form-control" id="take_profit" placeholder="Enter take profit ratio">
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Open Backtesting Engine</button>
+                </form>
             </div>
         </div>
-        <div class="mt-5" id="results"></div>
+        <div class="container mt-5">
+            <h2 class="text-center">Backtesting Results</h2>
+            <div id="results">
+                <table>
+                    <tr>
+                        <th>Final Balance</th>
+                        <td id="final_balance"></td>
+                    </tr>
+                    <tr>
+                        <th>Buy Signals</th>
+                        <td id="buy_signals"></td>
+                    </tr>
+                    <tr>
+                        <th>Sell Signals</th>
+                        <td id="sell_signals"></td>
+                    </tr>
+                    <tr>
+                        <th>Beta</th>
+                        <td id="beta"></td>
+                    </tr>
+                    <tr>
+                        <th>Sharpe Ratio</th>
+                        <td id="sharpe_ratio"></td>
+                    </tr>
+                    <tr>
+                        <th>Alpha</th>
+                        <td id="alpha"></td>
+                    </tr>
+                    <tr>
+                        <th>Total Return</th>
+                        <td id="total_return"></td>
+                    </tr>
+                    <tr>
+                        <th>SMA Short Window</th>
+                        <td id="sma_short_window"></td>
+                    </tr>
+                    <tr>
+                        <th>SMA Long Window</th>
+                        <td id="sma_long_window"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
         <div class="mt-5" id="chart"></div>
         <div class="mt-5" id="rsi_chart"></div>
         <div class="mt-5" id="macd_chart"></div>
     </div>
 
     <script>
-        function openBacktestingEngine() {
-            var ticker = $('#ticker').val();
-            var start_date = $('#start_date').val();
-            var end_date = $('#end_date').val();
-            var initial_balance = $('#initial_balance').val();
-            var stop_loss = $('#stop_loss').val();
-            var take_profit = $('#take_profit').val();
-
-            $.ajax({
-                url: '/backtesting/',
-                type: 'POST',
-                contentType: 'application/json',
-                headers: {'X-CSRFToken': csrftoken},
-                data: JSON.stringify({
-                    ticker: ticker,
-                    start_date: start_date,
-                    end_date: end_date,
-                    initial_balance: initial_balance,
-                    stop_loss: stop_loss,
-                    take_profit: take_profit
-                }),
-                success: function(response) {
-                    $('#results').html(`
-                        <h3>Results</h3>
-                        <p>Final Balance: $${response.final_balance.toFixed(2)}</p>
-                        <p>Buy Signals: ${JSON.stringify(response.buy_signals)}</p>
-                        <p>Sell Signals: ${JSON.stringify(response.sell_signals)}</p>
-                        <p>Beta: ${response.beta.toFixed(4)}</p>
-                        <p>Sharpe Ratio: ${response.sharpe_ratio.toFixed(4)}</p>
-                        <p>Alpha: ${response.alpha.toFixed(4)}</p>
-                        <p>Total Return: ${(response.total_return * 100).toFixed(2)}%</p>
-                        <p>Optimal Parameters: SMA Short Window = ${response.sma_short_window}, SMA Long Window = ${response.sma_long_window}</p>
-                    `);
-
-                    var plot_data = response.plot_data;
-
-                    var price_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.adj_close,
-                        mode: 'lines',
-                        name: 'Price'
-                    };
-
-                    var sma_short_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.sma_short,
-                        mode: 'lines',
-                        name: 'SMA_Short'
-                    };
-
-                    var sma_long_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.sma_long,
-                        mode: 'lines',
-                        name: 'SMA_Long'
-                    };
-
-                    var buy_signals_trace = {
-                        x: plot_data.buy_signals.map(s => s[0]),
-                        y: plot_data.buy_signals.map(s => s[1]),
-                        mode: 'markers',
-                        marker: { symbol: 'triangle-up', color: 'green', size: 10 },
-                        name: 'Buy Signal'
-                    };
-
-                    var sell_signals_trace = {
-                        x: plot_data.sell_signals.map(s => s[0]),
-                        y: plot_data.sell_signals.map(s => s[1]),
-                        mode: 'markers',
-                        marker: { symbol: 'triangle-down', color: 'red', size: 10 },
-                        name: 'Sell Signal'
-                    };
-
-                    var rsi_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.rsi,
-                        mode: 'lines',
-                        name: 'RSI'
-                    };
-
-                    var rsi_30_trace = {
-                        x: [plot_data.dates[0], plot_data.dates[plot_data.dates.length - 1]],
-                        y: [30, 30],
-                        mode: 'lines',
-                        line: { color: 'red', dash: 'dash' },
-                        name: 'RSI 30'
-                    };
-
-                    var rsi_70_trace = {
-                        x: [plot_data.dates[0], plot_data.dates[plot_data.dates.length - 1]],
-                        y: [70, 70],
-                        mode: 'lines',
-                        line: { color: 'red', dash: 'dash' },
-                        name: 'RSI 70'
-                    };
-
-                    var macd_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.macd,
-                        mode: 'lines',
-                        name: 'MACD'
-                    };
-
-                    var macd_signal_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.macd_signal,
-                        mode: 'lines',
-                        name: 'MACD Signal'
-                    };
-
-                    var macd_diff_trace = {
-                        x: plot_data.dates,
-                        y: plot_data.macd_diff,
-                        type: 'bar',
-                        name: 'MACD Diff'
-                    };
-
-                    Plotly.newPlot('chart', [price_trace, sma_short_trace, sma_long_trace, buy_signals_trace, sell_signals_trace], {
-                        title: `${ticker} Trade Signal`,
-                        xaxis: { title: 'Date' },
-                        yaxis: { title: 'Price' }
-                    });
-
-                    Plotly.newPlot('rsi_chart', [rsi_trace, rsi_30_trace, rsi_70_trace], {
-                        title: 'RSI',
-                        xaxis: { title: 'Date' },
-                        yaxis: { title: 'RSI' }
-                    });
-
-                    Plotly.newPlot('macd_chart', [macd_trace, macd_signal_trace, macd_diff_trace], {
-                        title: 'MACD',
-                        xaxis: { title: 'Date' },
-                        yaxis: { title: 'MACD' }
-                    });
-                },
-                error: function(error) {
-                    alert('Error: ' + error.responseJSON.message);
+        $(document).ready(function() {
+            $('#backtesting-form').on('submit', function(event) {
+                event.preventDefault();
+                
+                var ticker = $('#ticker').val();
+                var start_date = $('#start_date').val();
+                var end_date = $('#end_date').val();
+                var initial_balance = $('#initial_balance').val();
+                var stop_loss = $('#stop_loss').val();
+                var take_profit = $('#take_profit').val();
+                function getCookie(name) {
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
                 }
+                const csrftoken = getCookie('csrftoken');
+            
+                
+              
+                $('#loading-indicator').show();
+
+                $.ajax({
+                    url: "{% url 'backtesting_engine' %}",
+                    type: 'POST',
+                    headers: {'X-CSRFToken': csrftoken},  // 将 CSRF 令牌添加到请求头部
+                    data: {
+                        'ticker': ticker,
+                        'start_date': start_date,
+                        'end_date': end_date,
+                        'initial_balance': initial_balance,
+                        'stop_loss': stop_loss,
+                        'take_profit': take_profit
+                    },
+                    success: function(response) {
+                        
+                        $('#results').show();
+                        
+                        if (response.final_balance !== undefined && response.final_balance !== null) {
+                            $('#final_balance').text(response.final_balance);
+                            $('#buy_signals').text(response.buy_signals);
+                            $('#sell_signals').text(response.sell_signals);
+                            $('#beta').text(response.beta);
+                            $('#sharpe_ratio').text(response.sharpe_ratio);
+                            $('#alpha').text(response.alpha);
+                            $('#total_return').text(response.total_return);
+                            $('#sma_short_window').text(response.sma_short_window);
+                            $('#sma_long_window').text(response.sma_long_window);
+                        
+
+                            var plot_data = response.plot_data;
+
+                            var price_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.adj_close,
+                                mode: 'lines',
+                                name: 'Price'
+                            };
+
+                            var sma_short_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.sma_short,
+                                mode: 'lines',
+                                name: 'SMA_Short'
+                            };
+
+                            var sma_long_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.sma_long,
+                                mode: 'lines',
+                                name: 'SMA_Long'
+                            };
+
+                            var buy_signals_trace = {
+                                x: plot_data.buy_signals.map(s => s[0]),
+                                y: plot_data.buy_signals.map(s => s[1]),
+                                mode: 'markers',
+                                marker: { symbol: 'triangle-up', color: 'green', size: 10 },
+                                name: 'Buy Signal'
+                            };
+
+                            var sell_signals_trace = {
+                                x: plot_data.sell_signals.map(s => s[0]),
+                                y: plot_data.sell_signals.map(s => s[1]),
+                                mode: 'markers',
+                                marker: { symbol: 'triangle-down', color: 'red', size: 10 },
+                                name: 'Sell Signal'
+                            };
+
+                            var rsi_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.rsi,
+                                mode: 'lines',
+                                name: 'RSI'
+                            };
+
+                            var rsi_30_trace = {
+                                x: [plot_data.dates[0], plot_data.dates[plot_data.dates.length - 1]],
+                                y: [30, 30],
+                                mode: 'lines',
+                                line: { color: 'red', dash: 'dash' },
+                                name: 'RSI 30'
+                            };
+
+                            var rsi_70_trace = {
+                                x: [plot_data.dates[0], plot_data.dates[plot_data.dates.length - 1]],
+                                y: [70, 70],
+                                mode: 'lines',
+                                line: { color: 'red', dash: 'dash' },
+                                name: 'RSI 70'
+                            };
+
+                            var macd_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.macd,
+                                mode: 'lines',
+                                name: 'MACD'
+                            };
+
+                            var macd_signal_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.macd_signal,
+                                mode: 'lines',
+                                name: 'MACD Signal'
+                            };
+
+                            var macd_diff_trace = {
+                                x: plot_data.dates,
+                                y: plot_data.macd_diff,
+                                type: 'bar',
+                                name: 'MACD Diff'
+                            };
+
+                            Plotly.newPlot('chart', [price_trace, sma_short_trace, sma_long_trace, buy_signals_trace, sell_signals_trace], {
+                                title: `${ticker} Trade Signal`,
+                                xaxis: { title: 'Date' },
+                                yaxis: { title: 'Price' }
+                            });
+
+                            Plotly.newPlot('rsi_chart', [rsi_trace, rsi_30_trace, rsi_70_trace], {
+                                title: 'RSI',
+                                xaxis: { title: 'Date' },
+                                yaxis: { title: 'RSI' }
+                            });
+
+                            Plotly.newPlot('macd_chart', [macd_trace, macd_signal_trace, macd_diff_trace], {
+                                title: 'MACD',
+                                xaxis: { title: 'Date' },
+                                yaxis: { title: 'MACD' }
+                            });
+                        } else {
+                            $('#results').html('<p>Error: Final balance data is missing or invalid.</p>');
+                        }
+                    },
+                    error: function(error) {
+                        alert('Error: ' + error.responseJSON.message);
+                    },
+                    complete: function() {
+                        $('#loading-indicator').hide();
+                    }
+                });
             });
-        }
+        });
     </script>
 </body>
 </html>
