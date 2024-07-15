@@ -8,9 +8,10 @@ document.getElementById('forecast-form').addEventListener('submit', function (ev
     const stockCode = document.getElementById('stock-code').value;
     const startDate = document.getElementById('start-date').value;
     const predictionDays = document.getElementById('prediction-days').value;
+    console.log("test");
     
     // Call your backend API to get forecast data
-    fetch('/lstm_stock_prediction/', {
+    fetch('http://127.0.0.1:8000/lstm_stock_prediction/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -24,6 +25,7 @@ document.getElementById('forecast-form').addEventListener('submit', function (ev
         return response.json();
     })
     .then(data => {
+        console.log('Success:', data);
         if (data.success) {
             document.getElementById('forecast-results').style.display = 'block';
 

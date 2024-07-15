@@ -269,6 +269,8 @@ def backtesting(request):
 @csrf_exempt
 def lstm_stock_prediction(request):
     if request.method == 'POST':
+      
+        """
         try:
             data = json.loads(request.body)
             ticker = data['stockCode']
@@ -402,13 +404,20 @@ def lstm_stock_prediction(request):
         # 生成正确的日期标签
         future_dates = [str((datetime.now().date() + timedelta(days=i)).isoformat()) for i in range(1, forecast_days + 1)]
         predicted_prices = predicted_prices.flatten().tolist()
+        """
+        # 使用测试数据
+        with open("prediction_results.json", "r") as file:
+            data = json.load(file)
+        
+        print("success")
         
         return JsonResponse({
             'success': True,
-            'model': model_name,
-            'mse': mse,
-            'dates': future_dates,
-            'predictions': predicted_prices
+            'model': data['model'],
+            'mse': data['mse'],
+            'dates': data['future_dates'],
+            'predictions': data['predicted_prices']
         })
     else:
-        return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+      print("Invalid request method.")
+      return JsonResponse({'success': False, 'message': 'Invalid request method.'})
