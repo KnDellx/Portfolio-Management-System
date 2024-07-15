@@ -253,7 +253,7 @@ def fetch_news():
 
 def backtesting(request):
   print('Function Called')
-  return render(request, 'ba/backtesting.html')
+  return render(request, 'backtesting/backtesting.html')
   """
   try:
     output = sp.check_output("quantdom", shell=True)
