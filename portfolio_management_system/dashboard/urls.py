@@ -10,4 +10,5 @@ urlpatterns = [
     path('get-portfolio-insights', views.get_portfolio_insights, name="get-portfolio-insights"),
     path('backtesting/', views.backtesting, name="backtesting"),
     path('lstm_stock_prediction/', views.lstm_stock_prediction, name='lstm_stock_prediction'),
+    path('recommendation_view/', views.recommendation_view, name="recommendation_view")
 ]

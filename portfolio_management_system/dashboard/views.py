@@ -436,37 +436,39 @@ def lstm_stock_prediction(request):
 # ---------------------user preference---------------------
 # Load group_results.csv into a pandas DataFrame
 group_results = pd.read_csv('group_results.csv')
-
+@csrf_exempt
 @require_POST
 def recommendation_view(request):
-    data = json.loads(request.body)
-    
-    # Extract user preferences
-    risk_cluster = int(data.get('risk_tolerance', 0))
-    return_cluster = int(data.get('return_preference', 0))
-    price_quartile = int(data.get('fund_status', 0))
-    investment_term = data.get('investment_term', 'long')  # default to 'long' if not provided
+    try:
+        data = json.loads(request.body)
+        
+        # Extract user preferences
+        risk_cluster = int(data.get('risk_tolerance', 0))
+        return_cluster = int(data.get('return_preference', 0))
+        price_quartile = int(data.get('fund_status', 0))
+        investment_term = data.get('investment_term', 'long')  # default to 'long' if not provided
 
-    # Filter group_results based on user preferences
-    filtered_data = group_results[
-        (group_results['Risk_Cluster'] == risk_cluster) &
-        (group_results['Return_Cluster'] == return_cluster) &
-        (group_results['Price_Quartile'] == price_quartile) &
-        (group_results['Investment_Term'] == investment_term)
-    ]
+        # Filter group_results based on user preferences
+        filtered_data = group_results[
+            (group_results['Risk_Cluster'] == risk_cluster) &
+            (group_results['Return_Cluster'] == return_cluster) &
+            (group_results['Price_Quartile'] == price_quartile) &
+            (group_results['Investment_Term'] == investment_term)
+        ]
 
-    if filtered_data.empty:
-        return JsonResponse({'error': 'No recommendations found for the given preferences.'}, status=404)
+        if filtered_data.empty:
+            return JsonResponse({'error': 'No recommendations found for the given preferences.'}, status=404)
 
-    # Extract stock recommendations and number of stocks
-    stock_count = filtered_data.iloc[0]['Stock_Count']
-    stock_codes = filtered_data.iloc[0]['Stock_Codes'].strip('[]').replace("'", "").split(', ') if stock_count > 0 else []
+        # Extract stock recommendations and number of stocks
+        stock_count = int(filtered_data.iloc[0]['Stock_Count'])
+        stock_codes = filtered_data.iloc[0]['Stock_Codes'].strip('[]').replace("'", "").split(', ') if stock_count > 0 else []
 
-    # Prepare response data
-    response_data = {
-        'stock_count': stock_count,
-        'stock_codes': stock_codes
-    }
-
-    return JsonResponse(response_data)
-    
+        # Prepare response data
+        response_data = {
+            'stock_count': stock_count,
+            'stock_codes': stock_codes
+        }
+        return JsonResponse(response_data)
+    except Exception as e:
+        print(f"Error: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

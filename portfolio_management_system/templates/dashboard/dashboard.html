@@ -691,12 +691,12 @@
 
             
 
-            <!-- Recommendations -->
+            <!-- Recommendations Tab Content -->
             <div id="recommendations" class="tabcontent">
                 <div class="main-content">
                     <div class="page-content">
                         <div class="container-fluid">
-                            <!-- start page title -->
+                            <!-- Start Page Title -->
                             <div class="row">
                                 <div class="col-12">
                                     <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -711,83 +711,82 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- end page title -->
+                            <!-- End Page Title -->
 
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <!-- User Preferences Column -->
-                                    <div class="col-md-6">
-                                        <div id="user-preferences" class="row">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <div class="container-fluid">
-                                                        <!-- start page title -->
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <div class="page-title-box d-flex align-items-center justify-content-between">
-                                                                    <h4 class="mb-0">User Preferences</h4>
-                                                                </div>
-                                                            </div>
+                            <!-- Main Content -->
+                            <div class="row">
+                                <!-- User Preferences Column -->
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="mb-0">User Preferences</h4>
+                                            <form id="user-preferences-form" method="POST">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <label for="user-price-quartile">Select your fund status:</label>
+                                                    <select class="form-control" id="user-price-quartile" required>
+                                                        <option value="0">0 - 5000$</option>
+                                                        <option value="1">5000 - 10000$</option>
+                                                        <option value="2">10000 - 20000$</option>
+                                                        <option value="3">Higher than 20000$</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="user-investment-term">Investment term:</label>
+                                                    <select class="form-control" id="user-investment-term" required>
+                                                        <option value="long">Long term</option>
+                                                        <option value="short">Short term</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="user-risk-cluster">How much can you accept a drop in your assets?</label>
+                                                    <select class="form-control" id="user-risk-cluster" required>
+                                                        <option value="0">More than 30%</option>
+                                                        <option value="1">Less than 10%</option>
+                                                        <option value="2">10% - 30%</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="user-return-cluster">Which characteristics do you prefer?</label>
+                                                    <select class="form-control" id="user-return-cluster" required>
+                                                        <option value="0">Stable - low volatility, moderate return</option>
+                                                        <option value="1">High risk, high return - high volatility, high return</option>
+                                                        <option value="2">Growth - relatively high volatility and return</option>
+                                                    </select>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Submit</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Recommendation Results Column -->
+                                <div class="col-md-6">
+                                    <div class="card mt-5" id="recommendation-results" style="display: none;">
+                                        <div class="card-body">
+                                            <h2 class="text-center">Recommendation Results</h2>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="card">
+                                                        <div class="card-body text-center">
+                                                            <h4 class="mb-1 mt-1" id="number-of-stocks"></h4>
+                                                            <p class="text-muted mb-0">Number of Stocks</p>
                                                         </div>
-                                                        <!-- end page title -->
-                                                        <div class="row">
-                                                            <div class="col-lg-12">
-                                                                <div class="card">
-                                                                    <div class="card-body">
-                                                                        <form id="user-preferences-form">
-                                                                            <div class="form-group">
-                                                                                <label for="user-price-quartile">Select your fund status:</label>
-                                                                                <select class="form-control" id="user-price-quartile" required>
-                                                                                    <option value="0">0 - 5000$</option>
-                                                                                    <option value="1">5000 - 10000$</option>
-                                                                                    <option value="2">10000 - 20000$</option>
-                                                                                    <option value="3">Higher than 20000$</option>
-                                                                                </select>
-                                                                            </div>
-                                                                            <div class="form-group">
-                                                                                <label for="user-investment-term">Investment term:</label>
-                                                                                <select class="form-control" id="user-investment-term" required>
-                                                                                    <option value="long">Long term</option>
-                                                                                    <option value="short">Short term</option>
-                                                                                </select>
-                                                                            </div>
-                                                                            <div class="form-group">
-                                                                                <label for="user-risk-cluster">How much can you accept a drop in your assets?</label>
-                                                                                <select class="form-control" id="user-risk-cluster" required>
-                                                                                    <option value="0">More than 30%</option>
-                                                                                    <option value="1">Less than 10%</option>
-                                                                                    <option value="2">10% - 30%</option>
-                                                                                </select>
-                                                                            </div>
-                                                                            <div class="form-group">
-                                                                                <label for="user-return-cluster">Which characteristics do you prefer?</label>
-                                                                                <select class="form-control" id="user-return-cluster" required>
-                                                                                    <option value="0">Stable - low volatility, moderate return</option>
-                                                                                    <option value="1">High risk, high return - high volatility, high return</option>
-                                                                                    <option value="2">Growth - relatively high volatility and return</option>
-                                                                                </select>
-                                                                            </div>
-                                                                            <button type="submit" class="btn btn-primary">Submit</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="card">
+                                                        <div class="card-body text-center">
+                                                            <h4 class="mb-1 mt-1" id="stock-codes"></h4>
+                                                            <p class="text-muted mb-0">Stock Codes</p>
                                                         </div>
-                                                        <!-- end row -->
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Recommendation Results Column -->
-                                    <div class="col-md-6">
-                                        <div id="recommendation-results" class="row mt-3">
-                                            <!-- Results will be populated dynamically by JavaScript -->
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                            
 
                             <!-- Short-Term Recommendations -->
                             <div class="row">
@@ -854,12 +853,12 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <!-- end table-responsive -->
+                                            <!-- End Table Responsive -->
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- end row -->
+                            <!-- End Row -->
 
                             <footer class="footer">
                                 <div class="container-fluid">
@@ -879,7 +878,6 @@
                     </div>
                 </div>
             </div>
-
 
 
             <!-- News -->
@@ -1330,51 +1328,45 @@
 
         <!--script for getting the recommendation results-->
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('user-preferences-form');
-
-                form.addEventListener('submit', function(event) {
+            $(document).ready(function() {
+                $('#user-preferences-form').on('submit', function(event) {
                     event.preventDefault();
-                    
-                    // Gather user selections
-                    const fundStatus = document.getElementById('user-price-quartile').value;
-                    const investmentTerm = document.getElementById('user-investment-term').value;
-                    const riskTolerance = document.getElementById('user-risk-cluster').value;
-                    const returnPreference = document.getElementById('user-return-cluster').value;
-
-                    // Prepare data to send to backend
-                    const requestData = {
+    
+                    var fundStatus = $('#user-price-quartile').val();
+                    var investmentTerm = $('#user-investment-term').val();
+                    var riskTolerance = $('#user-risk-cluster').val();
+                    var returnPreference = $('#user-return-cluster').val();
+                    var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+    
+                    var requestData = {
                         fund_status: fundStatus,
                         investment_term: investmentTerm,
                         risk_tolerance: riskTolerance,
-                        return_preference: returnPreference
+                        return_preference: returnPreference,
                     };
-
-                    // Send data to backend
-                    fetch('/recommendation/', {
-                        method: 'POST',
+    
+                    $.ajax({
+                        type: 'POST',
+                        url: "{% url 'recommendation_view' %}",
                         headers: {
+                            'X-CSRFToken': csrfToken,
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(requestData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Handle recommendation response here
-                        displayRecommendations(data); // Assume this function displays recommendations
-                    })
-                    .catch(error => console.error('Error:', error));
+                        data: JSON.stringify(requestData),
+                        success: function(response) {
+                            $('#recommendation-results').show();
+                            $('#number-of-stocks').text(response.stock_count);
+                            $('#stock-codes').text(response.stock_codes.join(', '));
+                        },
+                        error: function(response) {
+                            var errorMessage = 'An unknown error occurred';
+                            if (response.responseJSON && response.responseJSON.error) {
+                                errorMessage = response.responseJSON.error;
+                            }
+                            alert('An error occurred: ' + errorMessage);
+                        }
+                    });
                 });
-
-                function displayRecommendations(data) {
-                    // Example function to display recommendation results in HTML
-                    const resultsContainer = document.getElementById('recommendation-results');
-                    resultsContainer.innerHTML = `
-                        <h5>Recommendation Results</h5>
-                        <p>Short-Term Recommendation: ${data.short_term_recommendation}</p>
-                        <p>Long-Term Recommendation: ${data.long_term_recommendation}</p>
-                    `;
-                }
             });
         </script>
 
