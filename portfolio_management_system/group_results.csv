@@ -1,0 +1,73 @@
+Risk_Cluster,Return_Cluster,Price_Quartile,Investment_Term,Stock_Count,Stock_Codes
+0,0,0,long,0,[]
+0,0,0,short,0,[]
+0,0,1,long,0,[]
+0,0,1,short,0,[]
+0,0,2,long,0,[]
+0,0,2,short,0,[]
+0,0,3,long,0,[]
+0,0,3,short,0,[]
+0,1,0,long,17,"['APA', 'BBWI', 'DVN', 'EQT', 'FCX', 'HAL', 'HWM', 'MGM', 'MRO', 'NVDA', 'OKE', 'ON', 'OXY', 'TPR', 'TRGP', 'UBER', 'WDC']"
+0,1,0,short,4,"['MGM', 'NVDA', 'UBER', 'WDC']"
+0,1,1,long,12,"['AMD', 'BLDR', 'BX', 'DFS', 'FANG', 'HES', 'MCHP', 'MPC', 'MU', 'RCL', 'TER', 'VLO']"
+0,1,1,short,3,"['AMD', 'DFS', 'TER']"
+0,1,2,long,6,"['AMAT', 'AXON', 'CRWD', 'FSLR', 'NXPI', 'SMCI']"
+0,1,2,short,4,"['AMAT', 'CRWD', 'NXPI', 'SMCI']"
+0,1,3,long,7,"['AMP', 'KLAC', 'LRCX', 'META', 'MPWR', 'TSLA', 'URI']"
+0,1,3,short,5,"['AMP', 'KLAC', 'LRCX', 'META', 'MPWR']"
+0,2,0,long,6,"['CFG', 'DAL', 'FITB', 'PCG', 'SLB', 'SYF']"
+0,2,0,short,0,[]
+0,2,1,long,1,['LYV']
+0,2,1,short,0,[]
+0,2,2,long,4,"['COF', 'EXPE', 'QRVO', 'SPG']"
+0,2,2,short,3,"['EXPE', 'QRVO', 'SWKS']"
+0,2,3,long,0,[]
+0,2,3,short,1,['BA']
+1,0,0,long,29,"['BSX', 'CNP', 'CPB', 'CTRA', 'EBAY', 'FAST', 'FE', 'FOX', 'FOXA', 'GEN', 'INVH', 'JCI', 'JNPR', 'KDP', 'KMI', 'KO', 'KR', 'LNT', 'MNST', 'MO', 'NDAQ', 'NI', 'PPL', 'ROL', 'T', 'TAP', 'UDR', 'WMT', 'WRB']"
+1,0,0,short,6,"['INVH', 'KMI', 'NEM', 'ROL', 'UDR', 'WMT']"
+1,0,1,long,32,"['ADM', 'AEP', 'AOS', 'BG', 'BRO', 'CAH', 'CHD', 'CHRW', 'CL', 'CMS', 'DUK', 'DVA', 'ED', 'EIX', 'EQR', 'ETR', 'GILD', 'GIS', 'HOLX', 'K', 'LDOS', 'MDLZ', 'MRK', 'NEE', 'OMC', 'PCAR', 'PEG', 'PM', 'PNW', 'SO', 'SRE', 'XOM']"
+1,0,1,short,7,"['ADM', 'CL', 'EQR', 'GILD', 'PEG', 'PM', 'SRE']"
+1,0,2,long,41,"['A', 'ABBV', 'AIZ', 'AJG', 'ALL', 'ATO', 'AVB', 'BR', 'CB', 'CBOE', 'CME', 'COR', 'CPT', 'DGX', 'DLR', 'DTE', 'EA', 'EXPD', 'EXR', 'FFIV', 'GRMN', 'HSY', 'IBM', 'ICE', 'J', 'JKHY', 'KMB', 'MAA', 'MMC', 'PEP', 'PG', 'PGR', 'PKG', 'RSG', 'TMUS', 'TRV', 'TSCO', 'TTWO', 'WM', 'YUM', 'ZTS']"
+1,0,2,short,11,"['AJG', 'AVB', 'BR', 'CPT', 'DLR', 'EA', 'IBM', 'KMB', 'TMUS', 'WM', 'ZTS']"
+1,0,3,long,43,"['ADP', 'AMGN', 'AON', 'APD', 'AZO', 'CMI', 'COST', 'DHR', 'DPZ', 'EG', 'ELV', 'EQIX', 'ESS', 'FDS', 'GD', 'HII', 'HON', 'ITW', 'LHX', 'LIN', 'LLY', 'LMT', 'MCD', 'MCK', 'MOH', 'MSI', 'NOC', 'ORLY', 'PSA', 'REGN', 'ROP', 'SHW', 'SNA', 'STE', 'STZ', 'TMO', 'TYL', 'UNH', 'UNP', 'VRSK', 'VRTX', 'WST', 'WTW']"
+1,0,3,short,13,"['AMGN', 'AMT', 'CHTR', 'COST', 'EQIX', 'ESS', 'HUM', 'LHX', 'MSI', 'PSA', 'REGN', 'VRSK', 'VRTX']"
+1,1,0,long,0,[]
+1,1,0,short,0,[]
+1,1,1,long,0,[]
+1,1,1,short,0,[]
+1,1,2,long,0,[]
+1,1,2,short,0,[]
+1,1,3,long,0,[]
+1,1,3,short,0,[]
+1,2,0,long,1,['IRM']
+1,2,0,short,0,[]
+1,2,1,long,1,['ORCL']
+1,2,1,short,1,['ORCL']
+1,2,2,long,0,[]
+1,2,2,short,0,[]
+1,2,3,long,1,['GWW']
+1,2,3,short,0,[]
+2,0,0,long,1,['CSX']
+2,0,0,short,1,['DOC']
+2,0,1,long,2,"['FTV', 'RTX']"
+2,0,1,short,0,[]
+2,0,2,long,4,"['ALLE', 'AME', 'GPC', 'VMC']"
+2,0,2,short,1,['IFF']
+2,0,3,long,2,"['HD', 'V']"
+2,0,3,short,0,[]
+2,1,0,long,2,"['FTNT', 'KKR']"
+2,1,0,short,0,[]
+2,1,1,long,5,"['AVGO', 'JBL', 'LEN', 'PHM', 'STLD']"
+2,1,1,short,1,['AVGO']
+2,1,2,long,5,"['ANET', 'DXCM', 'PANW', 'PWR', 'QCOM']"
+2,1,2,short,1,['PANW']
+2,1,3,long,2,"['DECK', 'FICO']"
+2,1,3,short,0,[]
+2,2,0,long,33,"['ACGL', 'AIG', 'APH', 'BAC', 'BK', 'BKR', 'C', 'CMG', 'CPRT', 'CTVA', 'DOW', 'F', 'GLW', 'GM', 'HBAN', 'HPE', 'HPQ', 'HST', 'IP', 'IR', 'KIM', 'MAS', 'MET', 'NRG', 'NWS', 'NWSA', 'REG', 'RF', 'VICI', 'VST', 'VTR', 'WFC', 'WMB']"
+2,2,0,short,9,"['APH', 'BAC', 'BK', 'HPE', 'KIM', 'NWS', 'NWSA', 'REG', 'WMB']"
+2,2,1,long,35,"['AFL', 'BBY', 'CBRE', 'CF', 'CINF', 'COP', 'CTSH', 'DD', 'DHI', 'EMN', 'EMR', 'EOG', 'EW', 'FRT', 'GDDY', 'GE', 'HIG', 'L', 'LYB', 'MS', 'NTAP', 'PAYX', 'PFG', 'PNR', 'PRU', 'PSX', 'RJF', 'SCHW', 'STT', 'STX', 'TJX', 'TXT', 'WAB', 'WELL', 'XYL']"
+2,2,1,short,8,"['AFL', 'BBY', 'BXP', 'CBRE', 'KMX', 'PRU', 'STX', 'WELL']"
+2,2,2,long,31,"['AAPL', 'ADI', 'AMZN', 'AVY', 'AXP', 'CDNS', 'CDW', 'CE', 'CVX', 'DOV', 'DRI', 'ETN', 'FI', 'GOOG', 'GOOGL', 'HLT', 'JPM', 'LOW', 'MAR', 'MTB', 'NUE', 'ODFL', 'PLD', 'PNC', 'PTC', 'RL', 'ROST', 'TEL', 'TT', 'TXN', 'UHS']"
+2,2,2,short,10,"['AAPL', 'ADI', 'AMZN', 'CDNS', 'HLT', 'PLD', 'RL', 'ROST', 'TT', 'TXN']"
+2,2,3,long,40,"['ACN', 'ADBE', 'ADSK', 'ANSS', 'BKNG', 'BLK', 'CAT', 'CI', 'CPAY', 'CRM', 'CTAS', 'DE', 'ECL', 'EFX', 'FDX', 'GS', 'HCA', 'HUBB', 'IDXX', 'INTU', 'IQV', 'ISRG', 'IT', 'MA', 'MCO', 'MLM', 'MSCI', 'MSFT', 'MTD', 'NDSN', 'NFLX', 'NOW', 'NVR', 'PH', 'ROK', 'SNPS', 'SPGI', 'SYK', 'TDG', 'ULTA']"
+2,2,3,short,13,"['ADSK', 'BIIB', 'BKNG', 'BLK', 'CTAS', 'ECL', 'EFX', 'GS', 'ISRG', 'IT', 'MSFT', 'NFLX', 'SNPS']"

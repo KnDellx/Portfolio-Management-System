@@ -689,6 +689,8 @@
                 </div>
             </div>
 
+            
+
             <!-- Recommendations -->
             <div id="recommendations" class="tabcontent">
                 <div class="main-content">
@@ -706,12 +708,88 @@
                                                 <li class="breadcrumb-item active">Recommendations</li>
                                             </ol>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                             <!-- end page title -->
 
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <!-- User Preferences Column -->
+                                    <div class="col-md-6">
+                                        <div id="user-preferences" class="row">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="container-fluid">
+                                                        <!-- start page title -->
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <div class="page-title-box d-flex align-items-center justify-content-between">
+                                                                    <h4 class="mb-0">User Preferences</h4>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- end page title -->
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <div class="card">
+                                                                    <div class="card-body">
+                                                                        <form id="user-preferences-form">
+                                                                            <div class="form-group">
+                                                                                <label for="user-price-quartile">Select your fund status:</label>
+                                                                                <select class="form-control" id="user-price-quartile" required>
+                                                                                    <option value="0">0 - 5000$</option>
+                                                                                    <option value="1">5000 - 10000$</option>
+                                                                                    <option value="2">10000 - 20000$</option>
+                                                                                    <option value="3">Higher than 20000$</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <label for="user-investment-term">Investment term:</label>
+                                                                                <select class="form-control" id="user-investment-term" required>
+                                                                                    <option value="long">Long term</option>
+                                                                                    <option value="short">Short term</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <label for="user-risk-cluster">How much can you accept a drop in your assets?</label>
+                                                                                <select class="form-control" id="user-risk-cluster" required>
+                                                                                    <option value="0">More than 30%</option>
+                                                                                    <option value="1">Less than 10%</option>
+                                                                                    <option value="2">10% - 30%</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <label for="user-return-cluster">Which characteristics do you prefer?</label>
+                                                                                <select class="form-control" id="user-return-cluster" required>
+                                                                                    <option value="0">Stable - low volatility, moderate return</option>
+                                                                                    <option value="1">High risk, high return - high volatility, high return</option>
+                                                                                    <option value="2">Growth - relatively high volatility and return</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- end row -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Recommendation Results Column -->
+                                    <div class="col-md-6">
+                                        <div id="recommendation-results" class="row mt-3">
+                                            <!-- Results will be populated dynamically by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            <!-- Short-Term Recommendations -->
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="card">
@@ -783,140 +861,6 @@
                             </div>
                             <!-- end row -->
 
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h4 class="card-title mb-4">Mid-Term Recommendations</h4>
-                                            <div class="table-responsive">
-                                                <table class="table table-centered table-nowrap mb-0">
-                                                    <thead class="thead-light">
-                                                        <tr>
-                                                            <th>Company Name</th>
-                                                            <th>Last Trading Price (LTP)</th>
-                                                            <th>Entry</th>
-                                                            <th>Target</th>
-                                                            <th>Holding Period</th>
-                                                            <th>Details</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="text-body font-weight-bold">Bank First Corp. (BFC)</td>
-                                                            <td>$ 72.28</td>
-                                                            <td>$ 75.00</td>
-                                                            <td>$ 98.50</td>
-                                                            <td>~ 1 year</td>
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                                                    View Details
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="text-body font-weight-bold">ACNB Corp. (ACNB)</td>
-                                                            <td>$ 29.13</td>
-                                                            <td>$ 30.50</td>
-                                                            <td>$ 40.30</td>
-                                                            <td>~ 1.5 years</td>
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                                                    View Details
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="text-body font-weight-bold">Axos Financials INC. (AX)</td>
-                                                            <td>$ 48.53</td>
-                                                            <td>$ 50.20</td>
-                                                            <td>$ 62.75</td>
-                                                            <td>~ 2 years</td>
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                                                    View Details
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <!-- end table-responsive -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end row -->
-
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h4 class="card-title mb-4">Long-Term Recommendations</h4>
-                                            <div class="table-responsive">
-                                                <table class="table table-centered table-nowrap mb-0">
-                                                    <thead class="thead-light">
-                                                        <tr>
-                                                            <th>Company Name</th>
-                                                            <th>Last Trading Price (LTP)</th>
-                                                            <th>Fundamental Strength</th>
-                                                            <th>Expected Returns (CAGR)</th>
-                                                            <th>Holding Period</th>
-                                                            <th>Details</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="text-body font-weight-bold">Molina Healthcare INC. (MOL)</td>
-                                                            <td>$ 240.98</td>
-                                                            <td class="font-weight-bold">Strong</td>
-                                                            <td class="font-weight-bold" style="color:#34c38f;">+ 12.29 %</td>
-                                                            <td>~ 4 years</td>
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                                                    View Details
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="text-body font-weight-bold">Public Storage (PSA)</td>
-                                                            <td>$ 257.88</td>
-                                                            <td class="font-weight-bold">Good</td>
-                                                            <td class="font-weight-bold" style="color:#34c38f;">+ 11.23 %</td>
-                                                            <td>~ 5 years</td>
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                                                    View Details
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="text-body font-weight-bold">Best Buy Co. (BBY)</td>
-                                                            <td>$ 112.48</td>
-                                                            <td class="font-weight-bold">Very Strong</td>
-                                                            <td class="font-weight-bold" style="color:#34c38f;">+ 19.96 %</td>
-                                                            <td>~ 3 years</td>
-                                                            <td>
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
-                                                                    View Details
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <!-- end table-responsive -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end row -->
-
                             <footer class="footer">
                                 <div class="container-fluid">
                                     <div class="row">
@@ -935,6 +879,8 @@
                     </div>
                 </div>
             </div>
+
+
 
             <!-- News -->
             <div id="news" class="tabcontent">
@@ -1381,6 +1327,58 @@
                 getDate();
             });
         </script>
+
+        <!--script for getting the recommendation results-->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('user-preferences-form');
+
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    // Gather user selections
+                    const fundStatus = document.getElementById('user-price-quartile').value;
+                    const investmentTerm = document.getElementById('user-investment-term').value;
+                    const riskTolerance = document.getElementById('user-risk-cluster').value;
+                    const returnPreference = document.getElementById('user-return-cluster').value;
+
+                    // Prepare data to send to backend
+                    const requestData = {
+                        fund_status: fundStatus,
+                        investment_term: investmentTerm,
+                        risk_tolerance: riskTolerance,
+                        return_preference: returnPreference
+                    };
+
+                    // Send data to backend
+                    fetch('/recommendation/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Handle recommendation response here
+                        displayRecommendations(data); // Assume this function displays recommendations
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+
+                function displayRecommendations(data) {
+                    // Example function to display recommendation results in HTML
+                    const resultsContainer = document.getElementById('recommendation-results');
+                    resultsContainer.innerHTML = `
+                        <h5>Recommendation Results</h5>
+                        <p>Short-Term Recommendation: ${data.short_term_recommendation}</p>
+                        <p>Long-Term Recommendation: ${data.long_term_recommendation}</p>
+                    `;
+                }
+            });
+        </script>
+
+        <!--finish recommendation-->
 
         <!-- Script for working of navbar options -->
         <script>
