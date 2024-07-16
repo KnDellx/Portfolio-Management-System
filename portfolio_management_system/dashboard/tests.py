@@ -19,7 +19,7 @@ import yfinance as yf
 class LSTMStockPredictionTest(TestCase):
 
     def test_lstm_stock_prediction(self):
-        ticker = "AAPL"
+        ticker = "MSFT"
         start_date = "2020-01-01"
         forecast_days = 15
 

@@ -416,10 +416,7 @@ def lstm_stock_prediction(request):
         """
         # 使用测试数据
         with open("prediction_results.json", "r") as file:
-            data = json.load(file)
-        
-        print("success")
-        
+            data = json.load(file)  
         return JsonResponse({
             'success': True,
             'model': data['model'],
