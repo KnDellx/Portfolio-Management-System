@@ -39,8 +39,13 @@ import subprocess as sp
 
 # 平衡多个API密钥的使用
 def get_alphavantage_key():
-  """
-  alphavantage_keys = [
+  
+  
+  
+
+  return  "I3HWE1TQ5CYFIOEN"
+"""
+alphavantage_keys = [
     settings.ALPHAVANTAGE_KEY1,
     settings.ALPHAVANTAGE_KEY2,
     settings.ALPHAVANTAGE_KEY3,
@@ -49,10 +54,7 @@ def get_alphavantage_key():
     settings.ALPHAVANTAGE_KEY6,
     settings.ALPHAVANTAGE_KEY7,
   ]
-  """
-  alphavantage_key = "767ECK0JKR7YDLBP"
-  # 随机选择
-  return alphavantage_key
+"""
 
 @login_required
 # 展示用户的投资组合仪表盘，检查用户石是否有风险档案，然后获取或创建用户的投资组合
@@ -185,20 +187,25 @@ def get_financials(request):
 def add_holding(request):
   if request.method == "POST":
     try:
+      data = json.loads(request.body)
       portfolio = Portfolio.objects.get(user=request.user)
       holding_companies = StockHolding.objects.filter(portfolio=portfolio)
-      company_symbol = request.POST['company'].split('(')[1].split(')')[0]
-      company_name = request.POST['company'].split('(')[0].strip()
-      number_stocks = int(request.POST['number-stocks'])
-      ts = TimeSeries(key=get_alphavantage_key(), output_format='json')
-      # 返回该股票的完整每日时间序列数据
-      data, meta_data = ts.get_daily(symbol=company_symbol, outputsize='full')
-      # 获取当日收盘价
-      buy_price = float(data[request.POST['date']]['4. close'])
-      # 用于获取不同类型的财务数据，例如公司概览、收入声明、资产负债表和现金流量表等
-      fd = FundamentalData(key=get_alphavantage_key(), output_format='json')
-      data, meta_data = fd.get_company_overview(symbol=company_symbol)
-      sector = data['Sector']
+      company_symbol = data['company']
+      date = data['date']
+      number_stocks = int(data['number_stocks'])
+      # 获取每日时间序列数据
+      stock = yf.Ticker(company_symbol)
+      hist = stock.history(period="max")
+    
+      
+      if date not in hist.index:
+          print(f"Date {date} not found in time series data")
+          return JsonResponse({"status": "Error", "message": f"Date {date} not found in time series data"}, status=400)
+      buy_price = hist.loc[date]['Close']
+
+      # 获取公司概览
+      info = stock.info
+      sector = info.get('sector', 'N/A')
 
       # 检查是否已经持有该公司的股票
       found = False
@@ -213,14 +220,13 @@ def add_holding(request):
       if not found:
         c = StockHolding.objects.create(
           portfolio=portfolio, 
-          company_name=company_name, 
+          company_name=info['longName'],
           company_symbol=company_symbol,
           number_of_shares=number_stocks,
           sector=sector
         )
         c.buying_value.append([buy_price, number_stocks])
         c.save()
-
       return HttpResponse("Success")
     except Exception as e:
       print(e)

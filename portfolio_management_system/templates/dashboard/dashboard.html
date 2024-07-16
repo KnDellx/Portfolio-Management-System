@@ -419,11 +419,17 @@
                                                             <form id="add-holding-form" method="post" action="{% url 'add-holding' %}">
                                                                 {% csrf_token %}
                                                                 <div class="form-group row mb-4">
-                                                                    <!--for属性与页面上某个输入元素的id匹配-->
                                                                     <label for="horizontal-firstname-input" class="col-sm-3 col-form-label">Stock Ticker :</label>
-                                                                    <input type="text" id="stock-ticker-input" class="form-control" placeholder="Enter stock ticker...">
                                                                     <div class="col-sm-9">
-                                                                        <select name="company" class="form-control select2 select2-hidden-accessible" id="company" data-select2-id="1" tabindex="-1" aria-hidden="true"></select>
+                                                                        <input type="text" id="stock-ticker-input" name="stock_ticker" class="form-control" placeholder="Enter stock ticker...">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group row mb-4">
+                                                                    <label for="company" class="col-sm-3 col-form-label">Company:</label>
+                                                                    <div class="col-sm-9">
+                                                                        <select name="company" class="form-control select2 select2-hidden-accessible" id="company" data-select2-id="1" tabindex="-1" aria-hidden="true">
+                                                                            <!-- Options should be added here -->
+                                                                        </select>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group row mb-4">
@@ -433,18 +439,20 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-group row mb-4">
-                                                                    <label for="example-date-input" class="col-sm-3 col-form-label">Number of Stocks</label>
+                                                                    <label for="number-stocks" class="col-sm-3 col-form-label">Number of Stocks</label>
                                                                     <div class="col-sm-9">
-                                                                        <input name="number-stocks" class="form-control" type="number" value="0" min="0" step="1" id="number-stocks">
+                                                                        <input name="number_stocks" class="form-control" type="number" value="0" min="0" step="1" id="number-stocks">
                                                                     </div>
                                                                 </div>
                                                                 <div class="row mt-4 justify-content-center">
                                                                     <button type="submit" class="btn btn-primary w-md">Submit</button>
                                                                 </div>
                                                             </form>
+                                                            
+                                                            
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-danger" data-dismiss="modal">Close</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1253,30 +1261,49 @@
             }
         </script>
 
-        <!-- Script for submitting the form with AJAX -->
         <script>
             function addStockHoldingResult(data) {
-                if (data === "Success") {
+                console.log(data)
+                if (data.status === "Success") {
                     $('#myModal').modal('toggle');
                     alert("Stock Holding successfully added to your portfolio");
                     location.reload();
                 } else {
-                    alert("Error adding the stock holding\n"); // + "Message: " + data);
+                    alert("Error adding the stock holding\n" + "Message: " + data.message);
                 }
             }
-
+        
             $("#add-holding-form").submit(function(e) {
                 e.preventDefault(); // avoid to execute the actual submit of the form.
                 var form = $(this);
                 var url = form.attr('action');
+        
+                // 手动构建请求数据对象
+                var requestData = {
+                    company: $('#stock-ticker-input').val(),
+                    date: $('#example-date-input').val(),
+                    number_stocks: $('#number-stocks').val()
+                };
+        
                 $.ajax({
                     type: "POST",
                     url: url,
-                    data: form.serialize(),
-                    success: function(data) { addStockHoldingResult(data) }
+                    headers: {
+                        'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),  // 直接从表单中获取CSRF令牌
+                        'Content-Type': 'application/json',
+                    },
+                    data: JSON.stringify(requestData),
+                    success: function(data) { 
+                        addStockHoldingResult(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error: ", status, error); // 调试信息，检查AJAX请求是否有错误
+                        alert("An error occurred while adding the stock holding.");
+                    }
                 });
             });
         </script>
+        
 
         <!-- Script for getting the list of companies for showing it in the add new holding dropdown -->
         <!-- This will be called only once -->

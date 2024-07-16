@@ -16,6 +16,9 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
 import yfinance as yf
 
+        
+    
+
 class LSTMStockPredictionTest(TestCase):
 
     def test_lstm_stock_prediction(self):
@@ -161,3 +164,7 @@ class LSTMStockPredictionTest(TestCase):
         self.assertIn('mse', data)
         self.assertIn('future_dates', data)
         self.assertIn('predicted_prices', data)
+        
+        
+        
+        
