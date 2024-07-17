@@ -107,22 +107,7 @@
                 var initial_balance = $('#initial_balance').val();
                 var stop_loss = $('#stop_loss').val();
                 var take_profit = $('#take_profit').val();
-                function getCookie(name) {
-                    let cookieValue = null;
-                    if (document.cookie && document.cookie !== '') {
-                        const cookies = document.cookie.split(';');
-                        for (let i = 0; i < cookies.length; i++) {
-                            const cookie = cookies[i].trim();
-                            // Does this cookie string begin with the name we want?
-                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                break;
-                            }
-                        }
-                    }
-                    return cookieValue;
-                }
-                const csrftoken = getCookie('csrftoken');
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             
                 
               
@@ -131,19 +116,19 @@
                 $.ajax({
                     url: "{% url 'backtesting_engine' %}",
                     type: 'POST',
-                    headers: {'X-CSRFToken': csrftoken},  // 将 CSRF 令牌添加到请求头部
-                    data: {
+                    headers: {'X-CSRFToken': csrfToken},  // 将 CSRF 令牌添加到请求头部
+                    contentType: 'application/json',  // 确保请求是以 JSON 形式发送
+                    data: JSON.stringify({
                         'ticker': ticker,
                         'start_date': start_date,
                         'end_date': end_date,
                         'initial_balance': initial_balance,
                         'stop_loss': stop_loss,
                         'take_profit': take_profit
-                    },
+                    }),
+            
                     success: function(response) {
-                        
                         $('#results').show();
-                        
                         if (response.final_balance !== undefined && response.final_balance !== null) {
                             $('#final_balance').text(response.final_balance);
                             $('#buy_signals').text(response.buy_signals);
@@ -261,7 +246,11 @@
                         }
                     },
                     error: function(error) {
-                        alert('Error: ' + error.responseJSON.message);
+                        var errorMessage = 'An unknown error occurred';
+                        if (error.responseJSON && error.responseJSON.message) {
+                            errorMessage = error.responseJSON.message;
+                        }
+                        alert('Error: ' + errorMessage);
                     },
                     complete: function() {
                         $('#loading-indicator').hide();

@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from itertools import product
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 import json
 from datetime import datetime
 import traceback
@@ -166,16 +167,17 @@ def plot_signals(df, buy_signals, sell_signals, ticker):
     fig_macd.show()
 
 @csrf_exempt
+@require_POST
 def backtesting_engine(request):
-    print(request)
     if request.method == 'POST':
         try:
-            ticker = request.POST.get('ticker')
-            start_date = request.POST.get('start_date')
-            end_date = request.POST.get('end_date')
-            initial_balance = float(request.POST.get('initial_balance'))
-            stop_loss = float(request.POST.get('stop_loss'))
-            take_profit = float(request.POST.get('take_profit'))
+            data = json.loads(request.body)
+            ticker = data.get('ticker')
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+            initial_balance = float(data.get('initial_balance'))
+            stop_loss = float(data.get('stop_loss'))
+            take_profit = float(data.get('take_profit'))
 
             stock_data = get_stock_data(ticker, start_date, end_date)
             stock_data_cleaned = stock_data.dropna()
@@ -212,9 +214,7 @@ def backtesting_engine(request):
                 'buy_signals': buy_signals,
                 'sell_signals': sell_signals
             }
-
-
-            return JsonResponse({
+            response_data = {
                 'final_balance': final_balance,
                 'buy_signals': buy_signals,
                 'sell_signals': sell_signals,
@@ -225,7 +225,9 @@ def backtesting_engine(request):
                 'sma_short_window': sma_short_window,
                 'sma_long_window': sma_long_window,
                 'plot_data': plot_data
-            })
+            }
+            return JsonResponse(response_data)
+            
 
         except Exception as e:
             traceback.print_exc()

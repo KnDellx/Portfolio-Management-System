@@ -114,70 +114,81 @@ def dashboard(request):
 
 def get_portfolio_insights(request):
   try:
-    portfolio = Portfolio.objects.get(user=request.user)
-    holding_companies = StockHolding.objects.filter(portfolio=portfolio)
-    fd = FundamentalData(key=get_alphavantage_key(), output_format='json')
-    portfolio_beta = 0
-    portfolio_pe = 0
-    for c in holding_companies:
-      data, meta_data = fd.get_company_overview(symbol=c.company_symbol)
-      portfolio_beta += float(data['Beta']) * (c.investment_amount / portfolio.total_investment)
-      portfolio_pe += float(data['PERatio']) * (c.investment_amount / portfolio.total_investment)
-    return JsonResponse({"PortfolioBeta": portfolio_beta, "PortfolioPE": portfolio_pe})
+      portfolio = Portfolio.objects.get(user=request.user)
+      holding_companies = StockHolding.objects.filter(portfolio=portfolio)
+      
+      portfolio_beta = 0
+      portfolio_pe = 0
+
+      for c in holding_companies:
+          stock = yf.Ticker(c.company_symbol)
+          info = stock.info
+
+          beta = info.get('beta', 0)
+          pe_ratio = info.get('trailingPE', 0)
+
+          portfolio_beta += beta * (c.investment_amount / portfolio.total_investment)
+          portfolio_pe += pe_ratio * (c.investment_amount / portfolio.total_investment)
+
+      return JsonResponse({"PortfolioBeta": portfolio_beta, "PortfolioPE": portfolio_pe})
   except Exception as e:
-    return JsonResponse({"Error": str(e)})
+      return JsonResponse({"Error": str(e)})
 
 
 def update_values(request):
   try:
-    portfolio = Portfolio.objects.get(user=request.user)
-    current_value = 0
-    unrealized_pnl = 0
-    growth = 0
-    holding_companies = StockHolding.objects.filter(portfolio=portfolio)
-    stockdata = {}
-    for c in holding_companies:
-      ts = TimeSeries(key=get_alphavantage_key(), output_format='json')
-      data, meta_data = ts.get_quote_endpoint(symbol=c.company_symbol)
-      last_trading_price = float(data['05. price'])
-      pnl = (last_trading_price * c.number_of_shares) - c.investment_amount
-      net_change = pnl / c.investment_amount
-      stockdata[c.company_symbol] = {
-        'LastTradingPrice': last_trading_price,
-        'PNL': pnl,
-        'NetChange': net_change * 100
-      }
-      current_value += (last_trading_price * c.number_of_shares)
-      unrealized_pnl += pnl
-    growth = unrealized_pnl / portfolio.total_investment
-    return JsonResponse({
-      "StockData": stockdata, 
-      "CurrentValue": current_value,
-      "UnrealizedPNL": unrealized_pnl,
-      "Growth": growth * 100
-    })
+      portfolio = Portfolio.objects.get(user=request.user)
+      current_value = 0
+      unrealized_pnl = 0
+      growth = 0
+      holding_companies = StockHolding.objects.filter(portfolio=portfolio)
+      stockdata = {}
+
+      for c in holding_companies:
+          stock = yf.Ticker(c.company_symbol)
+          last_trading_price = stock.history(period='1d')['Close'].iloc[-1]
+          
+          pnl = (last_trading_price * c.number_of_shares) - c.investment_amount
+          net_change = pnl / c.investment_amount
+          stockdata[c.company_symbol] = {
+              'LastTradingPrice': last_trading_price,
+              'PNL': pnl,
+              'NetChange': net_change * 100
+          }
+          current_value += (last_trading_price * c.number_of_shares)
+          unrealized_pnl += pnl
+
+      growth = unrealized_pnl / portfolio.total_investment
+      return JsonResponse({
+          "StockData": stockdata, 
+          "CurrentValue": current_value,
+          "UnrealizedPNL": unrealized_pnl,
+          "Growth": growth * 100
+      })
   except Exception as e:
-    return JsonResponse({"Error": str(e)})
+      return JsonResponse({"Error": str(e)})
 
 
 def get_financials(request):
   try:
-    fd = FundamentalData(key=get_alphavantage_key(), output_format='json')
-    data, meta_data = fd.get_company_overview(symbol=request.GET.get('symbol'))
+    symbol = request.GET.get('symbol')
+    stock = yf.Ticker(symbol)
+    # 获取公司概览
+    info = stock.info
     financials = {
-      "52WeekHigh": data['52WeekHigh'],
-      "52WeekLow": data['52WeekLow'],
-      "Beta": data['Beta'],
-      "BookValue": data['BookValue'],
-      "EBITDA": data['EBITDA'],
-      "EVToEBITDA": data['EVToEBITDA'],
-      "OperatingMarginTTM": data['OperatingMarginTTM'],
-      "PERatio": data['PERatio'],
-      "PriceToBookRatio": data['PriceToBookRatio'],
-      "ProfitMargin": data['ProfitMargin'],
-      "ReturnOnAssetsTTM": data['ReturnOnAssetsTTM'],
-      "ReturnOnEquityTTM": data['ReturnOnEquityTTM'],
-      "Sector": data['Sector'],
+      "52WeekHigh": info.get('fiftyTwoWeekHigh', 'N/A'),
+      "52WeekLow": info.get('fiftyTwoWeekLow', 'N/A'),
+      "Beta": info.get('beta', 'N/A'),
+      "BookValue": info.get('bookValue', 'N/A'),
+      "EBITDA": info.get('ebitda', 'N/A'),
+      "EVToEBITDA": info.get('enterpriseToEbitda', 'N/A'),
+      "OperatingMarginTTM": info.get('operatingMargins', 'N/A'),
+      "PERatio": info.get('trailingPE', 'N/A'),
+      "PriceToBookRatio": info.get('priceToBook', 'N/A'),
+      "ProfitMargin": info.get('profitMargins', 'N/A'),
+      "ReturnOnAssetsTTM": info.get('returnOnAssets', 'N/A'),
+      "ReturnOnEquityTTM": info.get('returnOnEquity', 'N/A'),
+      "Sector": info.get('sector', 'N/A'),
     }
     return JsonResponse({ "financials": financials })
   except Exception as e:
