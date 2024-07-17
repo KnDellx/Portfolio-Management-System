@@ -7,10 +7,10 @@ import plotly.graph_objects as go
 from itertools import product
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 import json
 from datetime import datetime
 import traceback
+import plotly
 
 # 获取用户输入的股票数据
 def get_stock_data(ticker, start_date, end_date):
@@ -129,6 +129,7 @@ def optimize_strategy(stock_data, market_data, initial_balance, stop_loss, take_
 
 # 绘制信号图
 def plot_signals(df, buy_signals, sell_signals, ticker):
+    plots = {}
     fig = go.Figure()
 
     # 绘制股票价格及其移动平均线
@@ -161,13 +162,14 @@ def plot_signals(df, buy_signals, sell_signals, ticker):
     fig_macd.add_trace(go.Bar(x=df.index, y=df['MACD_diff'], name='MACD_diff'))
 
     fig_macd.update_layout(title='MACD', xaxis_title='Date', yaxis_title='MACD')
-
-    fig.show()
-    fig_rsi.show()
-    fig_macd.show()
+    plots = {
+            'price_plot': json.dumps(fig.to_dict(), cls=plotly.utils.PlotlyJSONEncoder),
+            'rsi_plot': json.dumps(fig_rsi.to_dict(), cls=plotly.utils.PlotlyJSONEncoder),
+            'macd_plot': json.dumps(fig_macd.to_dict(), cls=plotly.utils.PlotlyJSONEncoder),
+        }
+    return plots
 
 @csrf_exempt
-@require_POST
 def backtesting_engine(request):
     if request.method == 'POST':
         try:
@@ -200,33 +202,18 @@ def backtesting_engine(request):
 
             data_with_indicators = calculate_technical_indicators(stock_data_cleaned.copy(), sma_short_window, sma_long_window)
             data_with_signals = generate_signals(data_with_indicators)
-            plot_signals(data_with_signals, buy_signals, sell_signals, ticker)
-            
-            plot_data = {
-                'dates': [date.strftime('%Y-%m-%d') for date in data_with_signals.index],
-                'adj_close': data_with_signals['Adj Close'].tolist(),
-                'sma_short': data_with_signals['SMA_Short'].tolist(),
-                'sma_long': data_with_signals['SMA_Long'].tolist(),
-                'rsi': data_with_signals['RSI'].tolist(),
-                'macd': data_with_signals['MACD'].tolist(),
-                'macd_signal': data_with_signals['MACD_signal'].tolist(),
-                'macd_diff': data_with_signals['MACD_diff'].tolist(),
-                'buy_signals': [(date.strftime('%Y-%m-%d'), price) for date, price in buy_signals],
-                'sell_signals': [(date.strftime('%Y-%m-%d'), price) for date, price in sell_signals]
-            }
+            plots = plot_signals(data_with_signals, buy_signals, sell_signals, ticker)
+        
             response_data = {
                 'final_balance': final_balance,
-                'buy_signals': plot_data['buy_signals'],
-                'sell_signals': plot_data['sell_signals'],
                 'beta': beta,
                 'sharpe_ratio': sharpe_ratio,
                 'alpha': alpha,
                 'total_return': total_return,
                 'sma_short_window': sma_short_window,
                 'sma_long_window': sma_long_window,
-                'plot_data': plot_data
+                'plots': plots
             }
-            print(response_data)
             return JsonResponse(response_data)
             
 
