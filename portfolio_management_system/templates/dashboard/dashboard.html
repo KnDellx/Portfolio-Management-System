@@ -1263,7 +1263,7 @@
 
         <script>
             function addStockHoldingResult(data) {
-                console.log(data)
+                console.log(data.status)
                 if (data.status === "Success") {
                     $('#myModal').modal('toggle');
                     alert("Stock Holding successfully added to your portfolio");
