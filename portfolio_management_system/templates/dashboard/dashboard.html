@@ -394,6 +394,10 @@
                                 </div>
                             </div> <!-- end row-->
 
+
+
+
+                            <!--Your holdings-->
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="card">
@@ -502,6 +506,14 @@
                                                                     View Details
                                                                 </button>
                                                             </td>
+                                                            <td class="text-center">
+                                                                <button 
+                                                                    type="button" 
+                                                                    class="btn btn-danger btn-md btn-rounded waves-effect waves-light"
+                                                                    onclick="deleteStockHolding('{{ c.CompanySymbol }}')">
+                                                                    Delete
+                                                                </button>
+                                                            </td>
                                                         </tr>
                                                         {% endfor %}
                                                     </tbody>
@@ -574,6 +586,8 @@
                                 </div>
                             </div>
                             <!-- end row -->
+
+
                         </div> <!-- container-fluid -->
                     </div>
                     <!-- End Page-content -->
@@ -977,9 +991,12 @@
                                 </div>
                             </div>
                             <!-- end page title -->
-
-                            <a class="btn btn-primary" href="{% url 'backtesting' %}">Open Backtesting Engine</a>
-
+                            <div class="col-md-6">
+                                <a class="btn btn-primary" href="{% url 'backtesting' %}">Open Backtesting Engine</a>
+                            </div>
+                            <div class="col-md-6">
+                                <a class="btn btn-primary" href="{% url 'multistock' %}">Open Multistock Engine</a>
+                            </div>
 
 
                             <footer class="footer">
@@ -1552,6 +1569,39 @@
                 window.myDoughnut3 = new Chart(ctx3, stockChartConfig);
             };
         </script>
+        <!--script for deleting the stock-->
+        <script>
+            function deleteStockHolding(companySymbol) {
+                if (confirm(`Are you sure you want to delete the stock holding for ${companySymbol}?`)) {
+                    var requestData = {
+                        company: companySymbol
+                    };
+            
+                    $.ajax({
+                        type: "POST",
+                        url: "/delete-holding/",  // URL to your delete holding view
+                        headers: {
+                            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
+                            'Content-Type': 'application/json',
+                        },
+                        data: JSON.stringify(requestData),
+                        success: function(data) {
+                            if (data.status === "Success") {
+                                alert("Stock Holding successfully deleted.");
+                                location.reload();
+                            } else {
+                                alert("Error deleting the stock holding\n" + "Message: " + data.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("AJAX Error: ", status, error);
+                            alert("An error occurred while deleting the stock holding.");
+                        }
+                    });
+                }
+            }
+        </script>
+        
     </body>
 
 </html>

@@ -203,7 +203,7 @@ def backtesting_engine(request):
             plot_signals(data_with_signals, buy_signals, sell_signals, ticker)
             
             plot_data = {
-                'dates': data_with_signals.index.tolist(),
+                'dates': [date.strftime('%Y-%m-%d') for date in data_with_signals.index],
                 'adj_close': data_with_signals['Adj Close'].tolist(),
                 'sma_short': data_with_signals['SMA_Short'].tolist(),
                 'sma_long': data_with_signals['SMA_Long'].tolist(),
@@ -211,13 +211,13 @@ def backtesting_engine(request):
                 'macd': data_with_signals['MACD'].tolist(),
                 'macd_signal': data_with_signals['MACD_signal'].tolist(),
                 'macd_diff': data_with_signals['MACD_diff'].tolist(),
-                'buy_signals': buy_signals,
-                'sell_signals': sell_signals
+                'buy_signals': [(date.strftime('%Y-%m-%d'), price) for date, price in buy_signals],
+                'sell_signals': [(date.strftime('%Y-%m-%d'), price) for date, price in sell_signals]
             }
             response_data = {
                 'final_balance': final_balance,
-                'buy_signals': buy_signals,
-                'sell_signals': sell_signals,
+                'buy_signals': plot_data['buy_signals'],
+                'sell_signals': plot_data['sell_signals'],
                 'beta': beta,
                 'sharpe_ratio': sharpe_ratio,
                 'alpha': alpha,
@@ -226,6 +226,7 @@ def backtesting_engine(request):
                 'sma_long_window': sma_long_window,
                 'plot_data': plot_data
             }
+            print(response_data)
             return JsonResponse(response_data)
             
 

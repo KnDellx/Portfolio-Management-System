@@ -128,6 +128,7 @@
                     }),
             
                     success: function(response) {
+                        console.log(response);
                         $('#results').show();
                         if (response.final_balance !== undefined && response.final_balance !== null) {
                             $('#final_balance').text(response.final_balance);

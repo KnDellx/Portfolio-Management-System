@@ -193,56 +193,72 @@ def get_financials(request):
     return JsonResponse({ "financials": financials })
   except Exception as e:
     return JsonResponse({"Error": str(e)})
+  
+# 写一个删除按钮的后端语句
+@csrf_exempt
+def delete_holding(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            portfolio = Portfolio.objects.get(user=request.user)
+            company_symbol = data['company']
+            
+            holding = StockHolding.objects.get(portfolio=portfolio, company_symbol=company_symbol)
+            holding.delete()
+            
+            return JsonResponse({"status": "Success", "message": "Stock holding deleted successfully"})
+        except StockHolding.DoesNotExist:
+            return JsonResponse({"status": "Error", "message": "Stock holding not found"})
+        except Exception as e:
+            print(e)
+            return JsonResponse({"status": "Error", "message": str(e)})
+    else:
+        return JsonResponse({"status": "Error", "message": "Invalid request method"})
 
 
 def add_holding(request):
   if request.method == "POST":
-    try:
-      data = json.loads(request.body)
-      portfolio = Portfolio.objects.get(user=request.user)
-      holding_companies = StockHolding.objects.filter(portfolio=portfolio)
-      company_symbol = data['company']
-      date = data['date']
-      number_stocks = int(data['number_stocks'])
-      # 获取每日时间序列数据
-      stock = yf.Ticker(company_symbol)
-      hist = stock.history(period="max")
-    
-      
-      if date not in hist.index:
-          print(f"Date {date} not found in time series data")
-          return JsonResponse({"status": "Error", "message": f"Date {date} not found in time series data"}, status=400)
-      buy_price = hist.loc[date]['Close']
+      try:
+          data = json.loads(request.body)
+          portfolio = Portfolio.objects.get(user=request.user)
+          holding_companies = StockHolding.objects.filter(portfolio=portfolio)
+          company_symbol = data['company']
+          number_stocks = int(data['number_stocks'])
+          
+          # 获取实时价格
+          stock = yf.Ticker(company_symbol)
+          live_price = stock.info['currentPrice']
+          
+          # 获取公司概览
+          info = stock.info
+          
+          sector = info.get('sector', 'N/A')
 
-      # 获取公司概览
-      info = stock.info
-      sector = info.get('sector', 'N/A')
-
-      # 检查是否已经持有该公司的股票
-      found = False
-      # 如果找到了该公司的股票，则将购买价值添加到购买价值列表中
-      # 如果是已经有的公司的股票，则直接添加购买价值
-      for c in holding_companies:
-        if c.company_symbol == company_symbol:
-          c.buying_value.append([buy_price, number_stocks])
-          c.save()
-          found = True
-      # 如果没有找到该公司的股票，则创建一个新的StockHolding对象
-      if not found:
-        c = StockHolding.objects.create(
-          portfolio=portfolio, 
-          company_name=info['longName'],
-          company_symbol=company_symbol,
-          number_of_shares=number_stocks,
-          sector=sector
-        )
-        c.buying_value.append([buy_price, number_stocks])
-        c.save()
-      return HttpResponse("Success")
-    except Exception as e:
-      print(e)
-      return HttpResponse(e)
-
+          # 检查是否已经持有该公司的股票
+          found = False
+          for c in holding_companies:
+              if c.company_symbol == company_symbol:
+                  c.buying_value.append([live_price, number_stocks])
+                  c.save()
+                  found = True
+                  break
+          
+          # 如果没有找到该公司的股票，则创建一个新的StockHolding对象
+          if not found:
+              c = StockHolding.objects.create(
+                  portfolio=portfolio, 
+                  company_name=info['longName'],
+                  company_symbol=company_symbol,
+                  number_of_shares=number_stocks,
+                  sector=sector
+              )
+              c.buying_value.append([live_price, number_stocks])
+              c.save()
+          
+          return HttpResponse("Success")
+      except Exception as e:
+          print(e)
+          return HttpResponse(e)
 def send_company_list(request):
   with open('nasdaq-listed.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
@@ -289,6 +305,9 @@ def backtesting(request):
     output = 'No such command'
   return HttpResponse("Success")
   """
+# 指向multistock.html
+def multistock(request):
+  return render(request, 'multistock/multistock.html')
 
 
 

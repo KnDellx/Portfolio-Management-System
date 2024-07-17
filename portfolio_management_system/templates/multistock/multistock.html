@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Stock Backtesting Engine</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .loading-overlay {
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-text {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .plot-container {
+            width: 100%; /* Full width */
+            height: 100%;
+            margin-bottom: 20px; /* Add margin bottom between plots */
+        }
+        .plot-container > div {
+            width: 100%; /* Full width */
+            height: 100%;
+            display: inline-block; /* Ensure plots are displayed inline */
+        }
+        .plot {
+            width: 100%; /* Full width */
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-4">Multi-Stock Backtesting Engine</h2>
+        <form id="backtest-form">
+            <div class="form-group">
+                <label for="tickers">Tickers (comma separated):</label>
+                <input type="text" class="form-control" id="tickers" required>
+            </div>
+            <div class="form-group">
+                <label for="start-date">Start Date:</label>
+                <input type="date" class="form-control" id="start-date" required>
+            </div>
+            <div class="form-group">
+                <label for="end-date">End Date:</label>
+                <input type="date" class="form-control" id="end-date" required>
+            </div>
+            <div class="form-group">
+                <label for="initial-amount">Initial Amount:</label>
+                <input type="number" class="form-control" id="initial-amount" value="100000" required>
+            </div>
+            <div class="form-group">
+                <label for="stop-loss">Stop Loss (%):</label>
+                <input type="number" class="form-control" id="stop-loss" value="5" required>
+            </div>
+            <div class="form-group">
+                <label for="take-profit">Take Profit (%):</label>
+                <input type="number" class="form-control" id="take-profit" value="10" required>
+            </div>
+            <div class="form-group">
+                <label for="short-window-min">Short Window Min:</label>
+                <input type="number" class="form-control" id="short-window-min" value="10" required>
+            </div>
+            <div class="form-group">
+                <label for="short-window-max">Short Window Max:</label>
+                <input type="number" class="form-control" id="short-window-max" value="50" required>
+            </div>
+            <div class="form-group">
+                <label for="short-window-step">Short Window Step:</label>
+                <input type="number" class="form-control" id="short-window-step" value="5" required>
+            </div>
+            <div class="form-group">
+                <label for="long-window-min">Long Window Min:</label>
+                <input type="number" class="form-control" id="long-window-min" value="50" required>
+            </div>
+            <div class="form-group">
+                <label for="long-window-max">Long Window Max:</label>
+                <input type="number" class="form-control" id="long-window-max" value="200" required>
+            </div>
+            <div class="form-group">
+                <label for="long-window-step">Long Window Step:</label>
+                <input type="number" class="form-control" id="long-window-step" value="10" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="run-backtest-btn">Run Backtest</button>
+        </form>
+        <div class="loading-overlay" id="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="loading-text">Processing Data...</div>
+        </div>
+        <hr>
+        <div id="results" style="display: none;">
+            <h3>Backtest Results</h3>
+            <p><strong>Best Short Window:</strong> <span id="best-short-window"></span></p>
+            <p><strong>Best Long Window:</strong> <span id="best-long-window"></span></p>
+            <p><strong>Total Final Value:</strong> $<span id="total_final_value"></span></p>
+            <div id="stock-percentages"></div>
+            <div id="plots"></div>
+           
+        </div>
+    </div>
+
+    <script>
+        $('#backtest-form').on('submit', function(event) {
+            event.preventDefault();
+            $('#loading').show(); // Show loading overlay
+            
+            const data = {
+                tickers: $('#tickers').val().split(',').map(ticker => ticker.trim()),
+                start_date: $('#start-date').val(),
+                end_date: $('#end-date').val(),
+                initial_amount: $('#initial-amount').val(),
+                stop_loss: $('#stop-loss').val() / 100,
+                take_profit: $('#take-profit').val() / 100,
+                short_window_min: $('#short-window-min').val(),
+                short_window_max: $('#short-window-max').val(),
+                short_window_step: $('#short-window-step').val(),
+                long_window_min: $('#long-window-min').val(),
+                long_window_max: $('#long-window-max').val(),
+                long_window_step: $('#long-window-step').val(),
+            };
+
+            $.ajax({
+                url: '/multistock_engine/',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: function(response) {
+                    $('#best-short-window').text(response.sma_short_window);
+                    $('#best-long-window').text(response.sma_long_window);
+                    $('#total_final_value').text(response.total_final_value.toFixed(2));
+                    
+                    const plots = response.plots;
+                    const stockPercentages = response.stock_percentages;
+                    
+                    $('#plots').empty();
+                    Object.keys(plots).forEach(ticker => {
+                        $('#plots').append(`<div class="plot-container"><h4>${ticker}</h4></div>`);
+                        $('#plots').append(`<div class="plot-container"><div id="price_plot_${ticker}" class="plot"></div></div>`);
+                        $('#plots').append(`<div class="plot-container"><div id="rsi_plot_${ticker}" class="plot"></div></div>`);
+                        $('#plots').append(`<div class="plot-container"><div id="macd_plot_${ticker}" class="plot"></div></div>`);
+                        Plotly.newPlot(`price_plot_${ticker}`, JSON.parse(plots[ticker].price_plot), { responsive: true });
+                        Plotly.newPlot(`rsi_plot_${ticker}`, JSON.parse(plots[ticker].rsi_plot), { responsive: true });
+                        Plotly.newPlot(`macd_plot_${ticker}`, JSON.parse(plots[ticker].macd_plot), { responsive: true });
+                    });
+
+                    $('#stock-percentages').empty().append('<h3>Stock Percentages</h3>');
+                    stockPercentages.forEach(stock => {
+                        $('#stock-percentages').append(`<p><strong>${stock[0]}:</strong> ${(stock[1] * 100).toFixed(2)}%</p>`);
+                    });
+
+                    $('#loading').hide(); // Hide loading overlay
+                    $('#results').show();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('Error running backtest.');
+                    $('#loading').hide(); // Hide loading overlay on error
+                }
+            });
+        });
+    </script>
+</body>
+</html>

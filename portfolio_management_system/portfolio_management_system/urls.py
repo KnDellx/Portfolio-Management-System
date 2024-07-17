@@ -24,4 +24,5 @@ urlpatterns = [
     path('', include('riskprofile.urls')),
     path('', include('stockviewer.urls')),
     path('', include('backtesting.urls')),
+    path('',include('multistock.urls')),
 ]
