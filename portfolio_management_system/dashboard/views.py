@@ -255,7 +255,8 @@ def add_holding(request):
               c.buying_value.append([live_price, number_stocks])
               c.save()
           
-          return HttpResponse("Success")
+          response_data = {"status": "Success"}
+          return JsonResponse(response_data)
       except Exception as e:
           print(e)
           return HttpResponse(e)

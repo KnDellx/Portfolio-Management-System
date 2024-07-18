@@ -15,164 +15,223 @@
     <link href="{% static 'dashboard/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
     <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    
+
     <style>
         #page-topbar {
-            background-color: #007bff; /* 蓝色背景 */
+            background-color: #5B73E8; /* 蓝色背景 */
             padding: 20px 0; /* 增加高度和上下间距 */
+            border-radius: 8px; /* 圆角边框 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
         }
         
-        .logo h2 {
-            font-family: 'Indie Flower', cursive; /* 使用艺术字体 */
-            color: white; /* 设置文本颜色为白色 */
-            padding: 0 20px; /* 增加左右间距 */
-            margin: 10px 0; /* 增加上下边距 */
-            /* 设置字体大小 */
-            font-size: 50px;
+        .logo-sm i {
+            font-size: 2em; /* 使图标更大 */
+            vertical-align: middle; /* 垂直居中图标 */
+        }
+        .logo-sm h2 {
+            display: inline;
+            margin-left: 20px; /* 左间距 */
+            margin-right: 10px; /* 右间距 */
+            margin-top: 0; /* 上间距 */
+            margin-bottom: 0; /* 下间距 */
+            vertical-align: middle; /* 垂直居中文字 */
+            font-size: 3em; /* 文字更大 */
         }
         .tabcontent {
             display: none;
             padding: 6px 12px;
             border: 1px solid #ccc;
             border-top: none;
-        }
-        .tabcontent {
             animation: fadeEffect 1s; /* Fading effect takes 1 second */
+        }
+        
+        /* 新增的样式 */
+        body {
+            font-family: "IBM Plex Sans", sans-serif;
+            font-size: .9rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #f5f6f8;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            margin-bottom: .5rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+    
+        h2 {
+            font-size: 1.8rem;
+            color: #495057;
+        }
+    
+        a {
+            color: #5b73e8;
+            text-decoration: none;
+            background-color: transparent;
+        }
+    
+        .logo {
+            line-height: 70px;
+        }
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        .main-container {
+            background-color: #fff; /* 设置主体背景为白色 */
+            margin: 20px auto; /* 上下边距20px，左右居中 */
+            padding: 20px; /* 内边距 */
+            border-radius: 8px; /* 圆角边框 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            max-width: 1200px; /* 最大宽度，根据需要调整 */
+        }
+        body {
+            /* Adjusting the background to a blue and white gradient */
+            background: linear-gradient(90deg, rgba(86, 204, 242,1) 0%, rgba(255,255,255,1) 50%, rgba(86, 204, 242,1) 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
     </style>
 </head>
 <body data-layout="horizontal" data-topbar="colored">
+    <div class="main-container">
     <!-- Begin page -->
-    <div id="layout-wrapper">
-        <header id="page-topbar">
-            <div class="navbar-header">
-                <div class="d-flex">
-                    <!-- LOGO -->
-                    <div class="navbar-brand-box">
-                        <a href="{% url 'home' %}" class="logo logo-light" style="text-decoration: none;">
-                            <span class="logo-sm">
-                                {% comment %} <img src="{% static 'dashboard/images/logo-sm.png' %}" alt="" height="30"> {% endcomment %}
-                                <h2 style="color: White;">Home</h2>
-                            </span>
-                        </a>
+        <div id="layout-wrapper">
+            <header id="page-topbar">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box">
+                            <a href="{% url 'home' %}" class="logo logo-light" style="text-decoration: none;">
+                                <span class="logo-sm">
+                                    <!-- 添加 FontAwesome 房子图标 -->
+                                    <h2 style="color: White; display: inline;"> Home</h2>
+                                </span>
+                            </a>
+                        </div>
                     </div>
                 </div>
+            </header>
+            <div id="loading-indicator" class="progress mt-3" style="display: none;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
             </div>
-        </header>
-        <div id="loading-indicator" class="progress mt-3" style="display: none;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+            <div class="container mt-5">
+                <h1 class="text-center">Stock Backtesting Engine</h1>
+                <div class="row mt-4">
+                    <div class="col-md-6 offset-md-3">
+                        <form id="backtesting-form" method = "POST" action = "{% url "backtesting_engine" %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="ticker">Stock Code:</label>
+                                <input type="text" class="form-control" id="ticker" placeholder="Enter stock code">
+                            </div>
+                            <div class="form-group">
+                                <label for="start_date">Start Date:</label>
+                                <input type="date" class="form-control" id="start_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="end_date">End Date:</label>
+                                <input type="date" class="form-control" id="end_date">
+                            </div>
+                            <div class="form-group">
+                                <label for="initial_balance">Initial Funds:</label>
+                                <input type="number" class="form-control" id="initial_balance" placeholder="Enter initial funds">
+                            </div>
+                            <div class="form-group">
+                                <label for="stop_loss">Stop Loss Ratio:</label>
+                                <input type="number" step="0.01" class="form-control" id="stop_loss" placeholder="Enter stop loss ratio">
+                            </div>
+                            <div class="form-group">
+                                <label for="take_profit">Take Profit Ratio:</label>
+                                <input type="number" step="0.01" class="form-control" id="take_profit" placeholder="Enter take profit ratio">
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">Open Backtesting Engine</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="mt-5" id="investment-data" >
+                    <h2 class="text-center">Investment Information</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="final_balance"></h4>
+                                    <p class="text-muted mb-0">Final Balance</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="beta"></h4>
+                                    <p class="text-muted mb-0">Beta</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="sharpe_ratio"></h4>
+                                    <p class="text-muted mb-0">Sharpe Ratio</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="alpha"></h4>
+                                    <p class="text-muted mb-0">Alpha</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="total_return"></h4>
+                                    <p class="text-muted mb-0">Total Return</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="sma_short_window"></h4>
+                                    <p class="text-muted mb-0">SMA Short Window</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="sma_long_window"></h4>
+                                    <p class="text-muted mb-0">SMA Long Window</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div id="plots"></div>
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <script>document.write(new Date().getFullYear())</script> © The fourth group
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-sm-right d-none d-sm-block">
+                                Crafted with <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
-        <div class="container mt-5">
-            <h1 class="text-center">Stock Backtesting Engine</h1>
-            <div class="row mt-4">
-                <div class="col-md-6 offset-md-3">
-                    <form id="backtesting-form" method = "POST" action = "{% url "backtesting_engine" %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="ticker">Stock Code:</label>
-                            <input type="text" class="form-control" id="ticker" placeholder="Enter stock code">
-                        </div>
-                        <div class="form-group">
-                            <label for="start_date">Start Date:</label>
-                            <input type="date" class="form-control" id="start_date">
-                        </div>
-                        <div class="form-group">
-                            <label for="end_date">End Date:</label>
-                            <input type="date" class="form-control" id="end_date">
-                        </div>
-                        <div class="form-group">
-                            <label for="initial_balance">Initial Funds:</label>
-                            <input type="number" class="form-control" id="initial_balance" placeholder="Enter initial funds">
-                        </div>
-                        <div class="form-group">
-                            <label for="stop_loss">Stop Loss Ratio:</label>
-                            <input type="number" step="0.01" class="form-control" id="stop_loss" placeholder="Enter stop loss ratio">
-                        </div>
-                        <div class="form-group">
-                            <label for="take_profit">Take Profit Ratio:</label>
-                            <input type="number" step="0.01" class="form-control" id="take_profit" placeholder="Enter take profit ratio">
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-3">Open Backtesting Engine</button>
-                    </form>
-                </div>
-            </div>
-            <div class="mt-5" id="investment-data" >
-                <h2 class="text-center">Investment Information</h2>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="final_balance"></h4>
-                                <p class="text-muted mb-0">Final Balance</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="beta"></h4>
-                                <p class="text-muted mb-0">Beta</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="sharpe_ratio"></h4>
-                                <p class="text-muted mb-0">Sharpe Ratio</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="alpha"></h4>
-                                <p class="text-muted mb-0">Alpha</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="total_return"></h4>
-                                <p class="text-muted mb-0">Total Return</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="sma_short_window"></h4>
-                                <p class="text-muted mb-0">SMA Short Window</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h4 class="mb-1 mt-1" style="color:#2b46f6;" id="sma_long_window"></h4>
-                                <p class="text-muted mb-0">SMA Long Window</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-        <div id="plots"></div>
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © The fourth group
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-right d-none d-sm-block">
-                            Crafted with <i class="fas fa-heart"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
     </div>
     <!-- JAVASCRIPT -->
     <script src="{% static 'dashboard/libs/jquery/jquery.min.js' %}"></script>
@@ -189,6 +248,7 @@
     <script src="{% static 'dashboard/js/pages/dashboard.init.js' %}"></script>
 
     <script src="{% static 'dashboard/js/app.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-animateNumber/0.0.14/jquery.animateNumber.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -223,13 +283,37 @@
             
                     success: function(response) {
                         
-                        $('#final_balance').text(response.final_balance);
-                        $('#beta').text(response.beta);
-                        $('#sharpe_ratio').text(response.sharpe_ratio);
-                        $('#alpha').text(response.alpha);
-                        $('#total_return').text(response.total_return);
-                        $('#sma_short_window').text(response.sma_short_window);
-                        $('#sma_long_window').text(response.sma_long_window);
+                        $('#final_balance').animateNumber({ number: response.final_balance }, 1500);
+                        $('#beta').animateNumber({ 
+                            number: response.beta,
+                            numberStep: function(now, tween) {
+                                var floored_number = Math.floor(now * 100) / 100;
+                                $(tween.elem).text(floored_number.toFixed(2));
+                            }
+                        }, 1500);
+                        $('#sharpe_ratio').animateNumber({ 
+                            number: response.sharpe_ratio,
+                            numberStep: function(now, tween) {
+                                var floored_number = Math.floor(now * 10000) / 10000;
+                                $(tween.elem).text(floored_number.toFixed(4));
+                            }
+                        }, 1500);
+                        $('#alpha').animateNumber({ 
+                            number: response.alpha,
+                            numberStep: function(now, tween) {
+                                var floored_number = Math.floor(now * 10000) / 10000;
+                                $(tween.elem).text(floored_number.toFixed(4));
+                            }
+                        }, 1500);
+                        $('#total_return').animateNumber({ 
+                            number: response.total_return,
+                            numberStep: function(now, tween) {
+                                var floored_number = Math.floor(now * 10000) / 10000;
+                                $(tween.elem).text(floored_number.toFixed(4));
+                            }
+                        }, 1500);
+                        $('#sma_short_window').animateNumber({ number: response.sma_short_window }, 1500);
+                        $('#sma_long_window').animateNumber({ number: response.sma_long_window }, 1500);
                         $('#investment-data').show();
                     
                         const plots = response.plots;

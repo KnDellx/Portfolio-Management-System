@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,13 @@
     <title>Multi-Stock Backtesting Engine</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'dashboard/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="{% static 'dashboard/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
     <style>
         .loading-overlay {
             position: fixed;
@@ -38,78 +45,114 @@
             width: 100%; /* Full width */
             height: 100%;
         }
+        body {
+            /* Adjusting the background to a blue and white gradient */
+            background: linear-gradient(90deg, rgba(86, 204, 242,1) 0%, rgba(255,255,255,1) 50%, rgba(86, 204, 242,1) 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        .main-container {
+            background-color: #fff; /* 设置主体背景为白色 */
+            margin: 20px auto; /* 上下边距20px，左右居中 */
+            padding: 20px; /* 内边距 */
+            border-radius: 8px; /* 圆角边框 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            max-width: 1200px; /* 最大宽度，根据需要调整 */
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="mt-4">Multi-Stock Backtesting Engine</h2>
-        <form id="backtest-form">
-            <div class="form-group">
-                <label for="tickers">Tickers (comma separated):</label>
-                <input type="text" class="form-control" id="tickers" required>
+    <div class="main-container">
+        <div class="container">
+            <h2 class="mt-4">Multi-Stock Backtesting Engine</h2>
+            <form id="backtest-form">
+                <div class="form-group">
+                    <label for="tickers">Tickers (comma separated):</label>
+                    <input type="text" class="form-control" id="tickers" required>
+                </div>
+                <div class="form-group">
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" class="form-control" id="start-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="end-date">End Date:</label>
+                    <input type="date" class="form-control" id="end-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="initial-amount">Initial Amount:</label>
+                    <input type="number" class="form-control" id="initial-amount" value="100000" required>
+                </div>
+                <div class="form-group">
+                    <label for="stop-loss">Stop Loss (%):</label>
+                    <input type="number" class="form-control" id="stop-loss" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label for="take-profit">Take Profit (%):</label>
+                    <input type="number" class="form-control" id="take-profit" value="10" required>
+                </div>
+                <div class="form-group">
+                    <label for="short-window-min">Short Window Min:</label>
+                    <input type="number" class="form-control" id="short-window-min" value="10" required>
+                </div>
+                <div class="form-group">
+                    <label for="short-window-max">Short Window Max:</label>
+                    <input type="number" class="form-control" id="short-window-max" value="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="short-window-step">Short Window Step:</label>
+                    <input type="number" class="form-control" id="short-window-step" value="5" required>
+                </div>
+                <div class="form-group">
+                    <label for="long-window-min">Long Window Min:</label>
+                    <input type="number" class="form-control" id="long-window-min" value="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="long-window-max">Long Window Max:</label>
+                    <input type="number" class="form-control" id="long-window-max" value="200" required>
+                </div>
+                <div class="form-group">
+                    <label for="long-window-step">Long Window Step:</label>
+                    <input type="number" class="form-control" id="long-window-step" value="10" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="run-backtest-btn">Run Backtest</button>
+            </form>
+            <div class="loading-overlay" id="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="loading-text">Processing Data...</div>
             </div>
-            <div class="form-group">
-                <label for="start-date">Start Date:</label>
-                <input type="date" class="form-control" id="start-date" required>
+            <hr>
+            <div id="results" style="display: none;">
+                <h3>Backtest Results</h3>
+                <p><strong>Best Short Window:</strong> <span id="best-short-window"></span></p>
+                <p><strong>Best Long Window:</strong> <span id="best-long-window"></span></p>
+                <p><strong>Total Final Value:</strong> $<span id="total_final_value"></span></p>
+                <div id="stock-percentages"></div>
+                <div id="plots"></div>
+            
             </div>
-            <div class="form-group">
-                <label for="end-date">End Date:</label>
-                <input type="date" class="form-control" id="end-date" required>
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <script>document.write(new Date().getFullYear())</script> © The fourth group
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-sm-right d-none d-sm-block">
+                                Crafted with <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
             </div>
-            <div class="form-group">
-                <label for="initial-amount">Initial Amount:</label>
-                <input type="number" class="form-control" id="initial-amount" value="100000" required>
-            </div>
-            <div class="form-group">
-                <label for="stop-loss">Stop Loss (%):</label>
-                <input type="number" class="form-control" id="stop-loss" value="5" required>
-            </div>
-            <div class="form-group">
-                <label for="take-profit">Take Profit (%):</label>
-                <input type="number" class="form-control" id="take-profit" value="10" required>
-            </div>
-            <div class="form-group">
-                <label for="short-window-min">Short Window Min:</label>
-                <input type="number" class="form-control" id="short-window-min" value="10" required>
-            </div>
-            <div class="form-group">
-                <label for="short-window-max">Short Window Max:</label>
-                <input type="number" class="form-control" id="short-window-max" value="50" required>
-            </div>
-            <div class="form-group">
-                <label for="short-window-step">Short Window Step:</label>
-                <input type="number" class="form-control" id="short-window-step" value="5" required>
-            </div>
-            <div class="form-group">
-                <label for="long-window-min">Long Window Min:</label>
-                <input type="number" class="form-control" id="long-window-min" value="50" required>
-            </div>
-            <div class="form-group">
-                <label for="long-window-max">Long Window Max:</label>
-                <input type="number" class="form-control" id="long-window-max" value="200" required>
-            </div>
-            <div class="form-group">
-                <label for="long-window-step">Long Window Step:</label>
-                <input type="number" class="form-control" id="long-window-step" value="10" required>
-            </div>
-            <button type="submit" class="btn btn-primary" id="run-backtest-btn">Run Backtest</button>
-        </form>
-        <div class="loading-overlay" id="loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
-            <div class="loading-text">Processing Data...</div>
-        </div>
-        <hr>
-        <div id="results" style="display: none;">
-            <h3>Backtest Results</h3>
-            <p><strong>Best Short Window:</strong> <span id="best-short-window"></span></p>
-            <p><strong>Best Long Window:</strong> <span id="best-long-window"></span></p>
-            <p><strong>Total Final Value:</strong> $<span id="total_final_value"></span></p>
-            <div id="stock-percentages"></div>
-            <div id="plots"></div>
-           
-        </div>
     </div>
 
     <script>

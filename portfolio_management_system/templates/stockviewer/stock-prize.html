@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-animateNumber/0.0.14/jquery.animateNumber.min.js"></script>
     <style>
         .tabcontent {
             display: none;
@@ -19,6 +20,41 @@
         @keyframes fadeEffect {
             from {opacity: 0;}
             to {opacity: 1;}
+        }
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        .container {
+            background-color: #fff; /* 设置主体背景为白色 */
+            margin: 20px auto; /* 上下边距20px，左右居中 */
+            padding: 20px; /* 内边距 */
+            border-radius: 8px; /* 圆角边框 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            max-width: 1200px; /* 最大宽度，根据需要调整 */
+        }
+        body {
+            /* Adjusting the background to a blue and white gradient */
+            background: linear-gradient(90deg, rgba(86, 204, 242,1) 0%, rgba(255,255,255,1) 50%, rgba(86, 204, 242,1) 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        .loading-overlay {
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent white */
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-text {
+            font-size: 36px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -35,6 +71,12 @@
             </div>
             <button type="submit" class="btn btn-primary btn-block">Get Stock Data</button>
         </form>
+        <div class="loading-overlay" id="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="loading-text">Processing Data...</div>
+        </div>
         <div class="mt-5" id="stock-data" style="display: none;">
             <h2 class="text-center">Stock Information</h2>
             <div class="row">
@@ -139,7 +181,7 @@
             $('#stock-form').on('submit', function(event) {
                 event.preventDefault();
                 var symbol = $('#stock-symbol').val();
-                $('#loading-indicator').show();
+                $('#loading').show();
                 $.ajax({
                     type: 'POST',
                     url: "{% url 'get_stock_data' %}",
@@ -149,12 +191,18 @@
                     },
                     success: function(response) {
                         $('#stock-data').show();
-                        $('#stock-symbol-display').text(response.symbol);
+                        $('#stock-symbol-display').html(`<a href="https://www.tradingview.com/symbols/${response.symbol}/" target="_blank">${response.symbol}</a>`);
                         $('#stock-name').text(response.longName);
                         $('#stock-currency').text(response.currency);
                         $('#stock-price').text(response.regularMarketPrice);
                         $('#stock-volume').text(response.regularMarketVolume);
-                        $('#stock-day-high').text(response.regularMarketDayHigh);
+                        $('#stock-day-high').animateNumber({ 
+                            number: response.regularMarketDayHigh,
+                            numberStep: function(now, tween) {
+                                var floored_number = Math.floor(now * 10000) / 10000;
+                                $(tween.elem).text(floored_number.toFixed(4));
+                            }
+                        }, 1500);
                         $('#stock-day-low').text(response.regularMarketDayLow);
                         $('#stock-previous-close').text(response.regularMarketPreviousClose);
                         $('#stock-beta').text(response.Beta);
@@ -167,7 +215,7 @@
                     },
                     complete: function() {
                       // 隐藏加载指示器
-                       $('#loading-indicator').hide();
+                       $('#loading').hide();
                     }
 
 
