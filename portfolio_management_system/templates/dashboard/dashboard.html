@@ -1098,17 +1098,56 @@
                 .then(data => {
                     if (data.success) {
                         document.getElementById('forecast-results').style.display = 'block';
-            
+
+                        // Prepare historical data
+                        if (!data.historical_data) {
+                            throw new Error('Historical data is undefined');
+                        }
+                        
+                        // Prepare historical data
+                        const historicalData = Object.keys(data.historical_data).map(date => ({
+                            x: date,
+                            y: data.historical_data[date]
+                        }));
+                        // Prepare forecasted data
+                        if (!data.dates || !data.predictions) {
+                            throw new Error('Dates or predictions are undefined');
+                        }
+
+                        // Prepare forecasted data
+                        const forecastData = data.dates.map((date, index) => ({
+                            x: date,
+                            y: data.predictions[index],
+                        }));
+
+                        // Combine historical and forecasted data for chart labels
+                        const chartLabels = [
+                            ...Object.keys(data.historical_data),
+                            ...data.dates, 
+                        ];
+
+                        // Combine historical and forecasted data for chart data
+                        const chartData = [
+                            ...Object.values(data.historical_data),
+                            ...data.predictions,
+                        ];
                         // Render LSTM chart
                         new Chart(document.getElementById('forecast-chart'), {
                             type: 'line',
                             data: {
-                                labels: data.dates,
+                                labels: chartLabels,
                                 datasets: [{
+                                    label: 'Historical Data',
+                                    data: historicalData,
+                                    borderColor: 'rgba(0, 123, 255, 1)',
+                                    borderWidth: 2,
+                                    fill: false
+                                }, {
                                     label: `${data.model} Forecast`,
-                                    data: data.predictions,
+                                    data: forecastData,
                                     borderColor: 'rgba(75, 192, 192, 1)',
-                                    borderWidth: 2
+                                    borderWidth: 2,
+                                    fill: false
                                 }]
                             },
                             options: { responsive: true }

@@ -23,8 +23,8 @@ class LSTMStockPredictionTest(TestCase):
 
     def test_lstm_stock_prediction(self):
         ticker = "MSFT"
-        start_date = "2020-01-01"
-        forecast_days = 15
+        start_date = "2023-01-01"
+        forecast_days = 10
 
         # 解析日期字符串，假设格式为 YYYY-MM-DD
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -145,13 +145,19 @@ class LSTMStockPredictionTest(TestCase):
 
         future_dates = [str((datetime.now().date() + timedelta(days=i)).isoformat()) for i in range(1, forecast_days + 1)]
         predicted_prices = predicted_prices.flatten().tolist()
+        # 假设df['Adj Close']的索引是日期
+        # 首先，确保索引是pandas的DateTime类型
+        df.index = pd.to_datetime(df.index)
 
+        # 然后，将日期格式化为标准字符串格式，例如"YYYY-MM-DD"
+        historical_data = {k.strftime('%Y-%m-%d'): v for k, v in df['Adj Close'].to_dict().items()}
         data = {
             'success': True,
             'model': model_name,
             'mse': mse,
             'future_dates': future_dates,
-            'predicted_prices': predicted_prices
+            'predicted_prices': predicted_prices,
+            'historical_data': historical_data
         }
 
         # Write data to a JSON file

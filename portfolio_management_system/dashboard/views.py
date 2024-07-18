@@ -461,7 +461,8 @@ def lstm_stock_prediction(request):
             'model': data['model'],
             'mse': data['mse'],
             'dates': data['future_dates'],
-            'predictions': data['predicted_prices']
+            'predictions': data['predicted_prices'],
+            'historical_data':data['historical_data']
         })
     else:
       print("Invalid request method.")
